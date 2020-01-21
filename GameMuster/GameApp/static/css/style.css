@@ -1,0 +1,43 @@
+.container-fluid.custom {
+    margin-top: 2%;
+    margin-left: auto;
+}
+
+.top-buffer {
+    margin-top: 20px;
+}
+
+.collapse-menu {
+    height: 100%;
+}
+
+.main-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.game-screen {
+    margin: 1%;
+}
+
+.game-descr {
+    margin-left: 2%;
+}
+
+.game-rate {
+    width: 19rem;
+}
+
+.game-card {
+    margin-left: 3%;
+    margin-bottom: 3%;
+    width: 22rem;
+}
+
+.paginator {
+    width: 200px;
+}
+
+.tweet{
+    width: 24rem;
+}

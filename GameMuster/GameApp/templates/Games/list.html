@@ -1,0 +1,164 @@
+{% extends "Games/base.html" %}
+{% load static %}
+
+{%block title%}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <div class="col-2" id="sidebar">
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapseMenu"
+            aria-controls="collapseMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <img src="{% static "img/arrow.png" %}" width="30" height="30">
+        </button>
+
+        <div class="collapse" id="collapseMenu">
+            <form action="" class="bg-danger text-white collapse-menu">
+                <div>
+                    <p class="font-weight-bold">Platform:</p>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">PC</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck2">
+                        <label class="custom-control-label" for="customCheck2">PS4</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-weight-bold">Genres:</pclass="font-weight-bold">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="customCheck3">
+                            <label class="custom-control-label" for="customCheck3">Platformer</label>
+                        </div>
+                </div>
+                <div>
+                    <p class="font-weight-bold">User Rating:</p>
+
+                    <div class="range-slider">
+                        <input type="text" class="js-range-slider" value="" />
+                    </div>
+                    <div class="extra-controls">
+                        <input type="hidden" class="js-input-from" value="0" />
+                        <input type="hidden" class="js-input-to" value="0" />
+                    </div>
+                </div>
+
+                <button class="btn btn-light btn-block text-danger" type="submit">Apply</button>
+            </form>
+        </div>
+        
+    </div>
+
+    <div class="col-8 top-buffer d-felx flex-wrap">
+        
+        <div class="md-form mt-0">
+            <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+        </div>
+
+        <div class="row top-buffer">
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+            <div class="card game-card">
+                <img src="{% static "img/pacman.png" %}" class="card-img-top">
+                <div class="card-body bg-dark text-white">
+                    <h5>PACMAN</h5>
+                    <p class="card-text">
+                        <span>arcade</span>
+                        <span>oldschool</span>
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light">Open</span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mx-auto paginator" aria-label="...">
+            <ul class="pagination pagination-lg">
+                <li class="page-item disabled">
+                    <a class="page-link bg-danger text-white" href="#" tabindex="-1">1</a>
+                </li>
+                <li class="page-item"><a class="page-link bg-danger text-white" href="#">2</a></li>
+                <li class="page-item"><a class="page-link bg-danger text-white" href="#">3</a></li>
+            </ul>
+        </nav>
+
+    </div>
+
+</div>
+
+<script src="{% static "js/list.js" %}"></script>
+{% endblock %}
