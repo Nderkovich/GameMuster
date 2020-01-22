@@ -50,100 +50,34 @@ Home
                 <button class="btn btn-light btn-block text-danger" type="submit">Apply</button>
             </form>
         </div>
-        
+
     </div>
 
     <div class="col-8 top-buffer d-felx flex-wrap">
-        
+
         <div class="md-form mt-0">
             <input class="form-control" type="text" placeholder="Search" aria-label="Search">
         </div>
 
         <div class="row top-buffer">
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
+            {% for game in game_list %}
+                <div class="card game-card">
+                    <img src="{% if game.cover %}{{ game.cover }}{% else %}{% static 'img/no_img.jpg' %}{% endif %}"
+                        class="card-img-top game_cover">
+                    <div class="card-body bg-dark text-white">
+                        <h5>{{ game.name }}</h5>
+                        <p class="card-text">
+                            {% for keyword in game.keywords %}
+                            <span>{{ keyword }}</span>
+                            {% endfor %}
+                        </p>
+                        <p class="card-text">
+                            <span class="badge badge-pill badge-light"><a href="{% url 'Game:game' game.id %}">Open</a></span>
+                            <span class="badge badge-pill badge-light">Must</span>
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
-                </div>
-            </div>
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
-                </div>
-            </div>
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
-                </div>
-            </div>
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
-                </div>
-            </div>
-            <div class="card game-card">
-                <img src="{% static "img/pacman.png" %}" class="card-img-top">
-                <div class="card-body bg-dark text-white">
-                    <h5>PACMAN</h5>
-                    <p class="card-text">
-                        <span>arcade</span>
-                        <span>oldschool</span>
-                    </p>
-                    <p class="card-text">
-                        <span class="badge badge-pill badge-light">Open</span>
-                        <span class="badge badge-pill badge-light">Must</span>
-                    </p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
         <nav class="mx-auto paginator" aria-label="...">

@@ -119,3 +119,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+IGDB_API_URL = 'https://api-v3.igdb.com/'
+IGDB_API_KEY = '3dd41c28fca7881f3778125420812cf5'
+
+TWITTER_API_KEY = 'XHkm8Fysq5zeuxxYHr4B6L5QD'
+TWITTER_SECRET_API_KEY = 'rVFi4YSQCWKZRh67X1YzuKQg0AMokNab1QnLInWHLbztPOSX52'
+TWITTER_API_URL = 'https://api.twitter.com/'

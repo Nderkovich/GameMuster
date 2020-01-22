@@ -41,3 +41,7 @@
 .tweet{
     width: 24rem;
 }
+
+.game_cover{
+    max-height: 20rem;
+}
