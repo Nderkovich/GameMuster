@@ -7,10 +7,13 @@ from .igdb_api import IGDBClient
 from .twitter_api import TwitterApi
 
 
-def main_page(request):
+def game_list(request, page=1):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    game_list = api_client.get_game_list()
-    return render(request, 'Games/list.html', {'game_list': game_list})
+    limit = 9
+    offset = (page-1) * limit
+    game_list = api_client.get_game_list(offset, limit)
+    return render(request, 'Games/list.html', {'game_list': game_list,
+                                               'page': page})
 
 
 def game_info(request, id):
