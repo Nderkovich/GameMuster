@@ -16,11 +16,11 @@ class TwitterApi:
         # Encoding for twitter auth
         b64_token = base64.b64encode(
             f'{api_key}:{api_secret_key}'.encode("utf-8"))
-        self._token = str(b64_token, 'utf-8')
+        encoded_token = str(b64_token, 'utf-8')
+        self._bearer_token = self._authentication_token(encoded_token)
 
-    @property
-    def _authentication_token(self) -> str:
-        headers = {'Authorization': f'Basic {self._token}',
+    def _authentication_token(self, encoded_token) -> str:
+        headers = {'Authorization': f'Basic {encoded_token}',
                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
                    }
         body = {'grant_type': 'client_credentials'}
@@ -35,33 +35,49 @@ class TwitterApi:
 
     def search_tweets(self, query: str):
         search_headers = {
-            'Authorization': f'Bearer {self._authentication_token}'}
+            'Authorization': f'Bearer {self._bearer_token}'}
         seacrh_params = {'q': query,
                          'lang': 'en'}
 
         data = requests.get(f'{self._api_url}1.1/search/tweets.json', headers=search_headers,
                             params=seacrh_params).json()
 
-        return [Tweet(tweet_data) for tweet_data in data['statuses']]
+        return [Tweet(tweet_data['id'], tweet_data['text'], tweet_data['user']['screen_name'],
+                      tweet_data['created_at']) for tweet_data in data['statuses']]
 
 
 class Tweet:
-    def __init__(self, data: dict):
-        self._data = data
-        self.id = data['id']
+    def __init__(self, id, text, user_name, date):
+        self._id = id
+        self._text = text
+        self._user_name = user_name
+        self._date = date
 
     @property
     def creation_date(self) -> str:
-        date = datetime.datetime.strptime(self._data['created_at'], '%a %b %y %H:%M:%S %z %Y')
-        return date.strftime('%d.%m.%Y %H:%M')
+        return self._date
+
+    @creation_date.setter
+    def creation_date(self, tweet_date):
+        date = datetime.datetime.strptime(
+            tweet_date, '%a %b %y %H:%M:%S %z %Y')
+        self._date = date.strftime('%d.%m.%Y %H:%M')
 
     @property
     def text(self) -> str:
-        return self._data['text']
+        return self._text
+
+    @text.setter
+    def text(self, tweet_text):
+        self._text = tweet_text
 
     @property
     def user_name(self) -> str:
-        return self._data['user']['screen_name']
+        return self._user_name
+
+    @user_name.setter
+    def user_name(self, twitter_user_name):
+        self._user_name = twitter_user_name
 
     @property
     def user_link(self) -> str:
@@ -69,4 +85,4 @@ class Tweet:
 
     @property
     def tweet_link(self) -> str:
-        return f'{self.user_link}/status/{self.id}'
+        return f'{self.user_link}/status/{self._id}'
