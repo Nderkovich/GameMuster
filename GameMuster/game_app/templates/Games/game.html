@@ -27,7 +27,7 @@ Info
         <h2>Screenshots</h2>
         <div class="d-flex flex-wrap">
             {% for screenshot in game.big_screenshots %}
-                <img class="game-screen" src="{{ screenshot }}" alt="" width="200px" height="200px">
+                <img class="game-screen" src="{{ screenshot }}" alt="{{ game.name }}" width="200px" height="200px">
             {% endfor %}
         </div>
     </div>
