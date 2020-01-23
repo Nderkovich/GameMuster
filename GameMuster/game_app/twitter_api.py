@@ -48,20 +48,20 @@ class TwitterApi:
 
 class Tweet:
     def __init__(self, id, text, user_name, date):
-        self._id = id
-        self._text = text
-        self._user_name = user_name
-        self._date = date
+        self.id = id
+        self.text = text
+        self.user_name = user_name
+        self.creation_date = date
 
     @property
     def creation_date(self) -> str:
-        return self._date
+        return self._creation_date
 
     @creation_date.setter
     def creation_date(self, tweet_date):
         date = datetime.datetime.strptime(
             tweet_date, '%a %b %y %H:%M:%S %z %Y')
-        self._date = date.strftime('%d.%m.%Y %H:%M')
+        self._creation_date = date.strftime('%d.%m.%Y %H:%M')
 
     @property
     def text(self) -> str:
@@ -85,4 +85,4 @@ class Tweet:
 
     @property
     def tweet_link(self) -> str:
-        return f'{self.user_link}/status/{self._id}'
+        return f'{self.user_link}/status/{self.id}'

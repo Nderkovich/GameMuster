@@ -9,7 +9,7 @@ from .twitter_api import TwitterApi
 
 def main_page(request):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    game_list = api_client.get_game_list(0, 9)
+    game_list = api_client.get_game_list()
     return render(request, 'Games/list.html', {'game_list': game_list})
 
 
