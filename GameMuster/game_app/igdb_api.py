@@ -52,7 +52,10 @@ class Game:
         platforms_list = []
         if self._data.get('platforms'):
             for platform in self._data['platforms']:
-                platforms_list.append(platform['name'])
+                if platform.get('abbreviation'):
+                    platforms_list.append(platform['abbreviation'])
+                else:
+                    platforms_list.append(platform['name'])
         return platforms_list
 
     @property
@@ -116,8 +119,9 @@ class IGDBClient:
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
-                                              'genres.name', 'keywords.name', 'name', 'platforms.name', 'rating',
-                                              'rating_count', 'cover.url', 'summary', 'screenshots.url'])[0]
+                                              'genres.name', 'keywords.name', 'name', 'platforms.name',
+                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                                              'screenshots.url'])[0]
         return Game(id, data)
 
     def get_game_list(self, offset=0, limit=9) -> List[Game]:

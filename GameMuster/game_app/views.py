@@ -21,6 +21,6 @@ def game_info(request, id):
     game = igdb_api_client.get_game_by_id(id)
     twitter_api_client = TwitterApi(
         settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
-    tweets = twitter_api_client.search_tweets(f'{game.name}')
+    tweets = twitter_api_client.search_tweets(f'"{game.name}""')
     return render(request, 'Games/game.html', {'game': game,
                                                'tweets': tweets})
