@@ -1,40 +1,9 @@
 from datetime import datetime
 from typing import List, Set, Dict
 from django.conf import settings
-from typing import TypeVar, List, Dict, Union
+from typing import TypeVar, List, Dict, Optional
 
 import requests
-
-
-GameInstance = TypeVar('Game')
-
-class IGDBClient:
-
-    def __init__(self, user_key: str, api_url: str):
-        self.headers = {'user-key': user_key}
-        self.api_url = api_url
-
-    def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
-        url = self.api_url + 'games'
-        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
-        data = requests.post(url, headers=self.headers, data=body).json()
-        return data
-
-    def _get_games_data(self, offset: int, limit: int) -> dict:
-        url = self.api_url + 'games'
-        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        data = requests.post(url, headers=self.headers, data=body).json()
-        return data
-
-    def get_game_by_id(self, id: int) -> GameInstance:
-        data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
-                                               'genres.name', 'keywords.name', 'name', 'platforms.name', 'rating',
-                                               'rating_count', 'cover.url', 'summary', 'screenshots.url'])[0]
-        return Game(id, data)
-
-    def get_game_list(self, offset=0, limit=9) -> List[GameInstance]:
-        data = self._get_games_data(offset, limit)
-        return [Game(game_data['id'], game_data) for game_data in data]
 
 
 class Game:
@@ -48,18 +17,18 @@ class Game:
 
     @property
     def critics_rating(self) -> Dict[str, int]:
-        critics_rate = {'rating': (int)(self._data.get('aggregated_rating', 0)),
+        critics_rate = {'rating': int((self._data.get('aggregated_rating', 0))),
                         'count': self._data.get('aggregated_rating_count', 0)}
         return critics_rate
 
     @property
     def user_rating(self) -> Dict[str, int]:
-        users_rate = {'rating': (int)(self._data.get('rating', 0)),
+        users_rate = {'rating': int((self._data.get('rating', 0))),
                       'count': self._data.get('rating_count', 0)}
         return users_rate
 
     @property
-    def release_date(self) -> Union[datetime, None]:
+    def release_date(self) -> Optional[datetime]:
         if self._data.get('first_release_date'):
             return datetime.utcfromtimestamp(self._data['first_release_date']).strftime('%d %B %Y')
         else:
@@ -116,3 +85,32 @@ class Game:
             return self._data['cover']['url'].replace('thumb', 'cover_big')
         else:
             return None
+
+
+class IGDBClient:
+
+    def __init__(self, user_key: str, api_url: str):
+        self.headers = {'user-key': user_key}
+        self.api_url = api_url
+
+    def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
+        url = self.api_url + 'games'
+        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
+        data = requests.post(url, headers=self.headers, data=body).json()
+        return data
+
+    def _get_games_data(self, offset: int, limit: int) -> dict:
+        url = self.api_url + 'games'
+        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
+        data = requests.post(url, headers=self.headers, data=body).json()
+        return data
+
+    def get_game_by_id(self, id: int) -> Game:
+        data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
+                                              'genres.name', 'keywords.name', 'name', 'platforms.name', 'rating',
+                                              'rating_count', 'cover.url', 'summary', 'screenshots.url'])[0]
+        return Game(id, data)
+
+    def get_game_list(self, offset=0, limit=9) -> List[Game]:
+        data = self._get_games_data(offset, limit)
+        return [Game(game_data['id'], game_data) for game_data in data]
