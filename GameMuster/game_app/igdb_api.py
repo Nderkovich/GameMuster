@@ -6,6 +6,11 @@ from typing import TypeVar, List, Dict, Optional
 import requests
 
 
+class ApiException(Exception):
+    def __init__(self, error_code):
+        self.message = f'Error code {error_code}'
+
+
 class Game:
     def __init__(self, id, data):
         self.id = id
@@ -96,14 +101,18 @@ class IGDBClient:
     def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
         url = self.api_url + 'games'
         body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
-        data = requests.post(url, headers=self.headers, data=body).json()
-        return data
+        data = requests.post(url, headers=self.headers, data=body)
+        if data.status_code != 200:
+            raise ApiException(data.status_code)
+        return data.json()
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
         url = self.api_url + 'games'
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        data = requests.post(url, headers=self.headers, data=body).json()
-        return data
+        data = requests.post(url, headers=self.headers, data=body)
+        if data.status_code != 200:
+            raise ApiException(data.status_code)
+        return data.json()
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
