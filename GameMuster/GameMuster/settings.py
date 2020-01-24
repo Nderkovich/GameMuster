@@ -12,12 +12,22 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+
+def get_env_value(env_var):
+    try:
+        return os.environ[env_var]
+    except KeyError:
+        message = f'{env_var} is not set'
+        raise ImproperlyConfigured(message)
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#ogmy9^eb48wr03w0uo6*c^#osa9f&itxcyegc)obzqffel(p%'
@@ -37,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'GameApp.apps.GameAppConfig',
+    'game_app.apps.GameAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -119,3 +129,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+IGDB_API_URL = get_env_value('IGDB_API_URL')
+IGDB_API_KEY = get_env_value('IGDB_API_KEY')
+
+TWITTER_API_KEY = get_env_value('TWITTER_API_KEY')
+TWITTER_SECRET_API_KEY = get_env_value('TWITTER_SECRET_API_KEY')
+TWITTER_API_URL = get_env_value('TWITTER_API_URL')

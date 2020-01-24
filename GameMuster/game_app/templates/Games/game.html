@@ -1,0 +1,69 @@
+{% extends "Games/base.html" %}
+{% load static %}
+
+{%block title%}
+Info
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    
+    <div class="col-7 top-buffer mx-3">
+        <div class="row">
+            <h1>{{ game.name }}</h1>
+            <h1><span class="badge badge-danger mx-2">MUST</span></h1>
+        </div>
+        <div class="row"></div>
+        <h2>Description</h2>
+        <p class="text-break">
+            {% if game.summary %}
+                {{ game.summary }}
+            {% else %}
+                No description yet
+            {% endif %}
+        </p>
+        <h2>Release date</h2>
+        <p>{{ game.release_date }}</p>
+        <h2>Screenshots</h2>
+        <div class="d-flex flex-wrap">
+            {% for screenshot in game.big_screenshots %}
+                <img class="game-screen" src="{{ screenshot }}" alt="{{ game.name }}" width="200px" height="200px">
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-2">
+        <h2>Rating</h2>
+        <h2><span class="badge badge-success game-rate">Users {{ game.user_rating.rating }} ({{ game.user_rating.count }})</span></h2>
+        <h2><span class="badge badge-danger game-rate">Critics {{ game.critics_rating.rating }} ({{ game.critics_rating.count }})</span></h2>
+        <h2>Genres</h2>
+        <div class="row mx-1">
+            {% for genre in game.genres %}
+                <h2><span class="badge badge-danger mx-1">{{genre}}</span></h2>
+            {% endfor %}
+        </div>
+        <h2>Platforms</h2>
+        <div class="row mx-1">
+            {% for platform in game.platforms %}
+                <h2><span class="badge badge-danger mx-1">{{ platform }}</span></h2>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col">
+        <h1>#{{ game.name }} Tweets</h1>
+        <div>
+            {% for tweet in tweets %}
+            <div class="card bg-danger text-white mb-2 tweet">
+                <div class="card-body">
+                    <p class="card-text">{{ tweet.text }}</p>
+                    <p class="card-link float-left">{{ tweet.creation_date }}</p>
+                    <a href="http://{{ tweet.tweet_link }}" class="card-link text-right float-right">@{{ tweet.user_name }}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
