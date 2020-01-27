@@ -1,5 +1,6 @@
 {% extends "Games/base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {%block title%}
 Home
@@ -7,7 +8,6 @@ Home
 
 {% block content %}
 <div class="row">
-
     <div class="col-2" id="sidebar">
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapseMenu"
@@ -16,24 +16,15 @@ Home
         </button>
 
         <div class="collapse" id="collapseMenu">
-            <form action="" class="bg-danger text-white collapse-menu">
+            <form action="." class="bg-danger text-white collapse-menu" method="post">
+                {% csrf_token %}
                 <div>
                     <p class="font-weight-bold">Platform:</p>
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">PC</label>
-                    </div>
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck2">
-                        <label class="custom-control-label" for="customCheck2">PS4</label>
-                    </div>
+                    {{ list_search_form.platforms }}
                 </div>
                 <div>
-                    <p class="font-weight-bold">Genres:</pclass="font-weight-bold">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="customCheck3">
-                            <label class="custom-control-label" for="customCheck3">Platformer</label>
-                        </div>
+                    <p class="font-weight-bold">Genres:</p>
+                    {{ list_search_form.genres }}
                 </div>
                 <div>
                     <p class="font-weight-bold">User Rating:</p>
@@ -42,12 +33,11 @@ Home
                         <input type="text" class="js-range-slider" value="" />
                     </div>
                     <div class="extra-controls">
-                        <input type="hidden" class="js-input-from" value="0" />
-                        <input type="hidden" class="js-input-to" value="0" />
+                        {% render_field list_search_form.rating_lower_limit class="js-input-from" style="visibility:hidden"%}
+                        {% render_field list_search_form.rating_upper_limit class="js-input-to" style="visibility:hidden"%}
                     </div>
                 </div>
-
-                <button class="btn btn-light btn-block text-danger" type="submit">Apply</button>
+                <input type="submit" value="Submit">
             </form>
         </div>
 
@@ -56,7 +46,10 @@ Home
     <div class="col-8 top-buffer d-felx flex-wrap">
 
         <div class="md-form mt-0">
-            <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+            <form action="." method="POST">
+                {% csrf_token %}
+                {% render_field name_search_form.name class="form-control" placeholder="Search" %}
+            </form>
         </div>
 
         <div class="row top-buffer">
@@ -88,15 +81,15 @@ Home
                     <a class="page-link bg-danger text-white" tabindex="-1">1</a>
                 </li>
                 <li class="page-item"><a class="page-link bg-danger text-white"
-                        href="{% url 'games:gamelist_page' 2 %}">2</a></li>
+                        href="{{ url_path }}page/2/?{{params}}">2</a></li>
                 <li class="page-item"><a class="page-link bg-danger text-white"
-                        href="{% url 'games:gamelist_page' 3 %}">3</a></li>
+                        href="{{ url_path }}page/3/?{{params}}">3</a></li>
                 {% else %}
                 <li class="page-item"><a class="page-link bg-danger text-white"
-                        href="{% url 'games:gamelist_page' page|add:-1 %}">{{ page|add:-1 }}</a></li>
+                        href="{{ url_path }}page/{{page|add:-1}}/?{{params}}">{{ page|add:-1 }}</a></li>
                 <li class="page-item"><a class="page-link bg-danger text-white">{{ page }}</a></li>
                 <li class="page-item"><a class="page-link bg-danger text-white"
-                        href="{% url 'games:gamelist_page' page|add:1 %}">{{ page|add:1 }}</a></li>
+                        href="{{ url_path }}page/{{page|add:1}}/?{{params}}">{{ page|add:1 }}</a></li>
                 {% endif %}
             </ul>
         </nav>
