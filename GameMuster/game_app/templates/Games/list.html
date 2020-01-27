@@ -61,32 +61,43 @@ Home
 
         <div class="row top-buffer">
             {% for game in game_list %}
-                <div class="card game-card">
-                    <img src="{% if game.cover %}{{ game.cover }}{% else %}{% static 'img/no_img.jpg' %}{% endif %}"
-                        class="card-img-top game_cover">
-                    <div class="card-body bg-dark text-white">
-                        <h5>{{ game.name }}</h5>
-                        <p class="card-text">
-                            {% for keyword in game.keywords %}
-                            <span>{{ keyword }}</span>
-                            {% endfor %}
-                        </p>
-                        <p class="card-text">
-                            <span class="badge badge-pill badge-light"><a href="{% url 'games:game_info' game.id %}">Open</a></span>
-                            <span class="badge badge-pill badge-light">Must</span>
-                        </p>
-                    </div>
+            <div class="card game-card">
+                <img src="{% if game.cover %}{{ game.cover }}{% else %}{% static 'img/no_img.jpg' %}{% endif %}"
+                    class="card-img-top game_cover">
+                <div class="card-body bg-dark text-white">
+                    <h5>{{ game.name }}</h5>
+                    <p class="card-text">
+                        {% for keyword in game.keywords|slice:"0:2" %}
+                        <span>{{ keyword }}</span>
+                        {% endfor %}
+                    </p>
+                    <p class="card-text">
+                        <span class="badge badge-pill badge-light"><a
+                                href="{% url 'games:game_info' game.id %}">Open</a></span>
+                        <span class="badge badge-pill badge-light">Must</span>
+                    </p>
                 </div>
+            </div>
             {% endfor %}
         </div>
 
         <nav class="mx-auto paginator" aria-label="...">
             <ul class="pagination pagination-lg">
+                {% if page == 1 %}
                 <li class="page-item disabled">
-                    <a class="page-link bg-danger text-white" href="#" tabindex="-1">1</a>
+                    <a class="page-link bg-danger text-white" tabindex="-1">1</a>
                 </li>
-                <li class="page-item"><a class="page-link bg-danger text-white" href="#">2</a></li>
-                <li class="page-item"><a class="page-link bg-danger text-white" href="#">3</a></li>
+                <li class="page-item"><a class="page-link bg-danger text-white"
+                        href="{% url 'games:gamelist_page' 2 %}">2</a></li>
+                <li class="page-item"><a class="page-link bg-danger text-white"
+                        href="{% url 'games:gamelist_page' 3 %}">3</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link bg-danger text-white"
+                        href="{% url 'games:gamelist_page' page|add:-1 %}">{{ page|add:-1 }}</a></li>
+                <li class="page-item"><a class="page-link bg-danger text-white">{{ page }}</a></li>
+                <li class="page-item"><a class="page-link bg-danger text-white"
+                        href="{% url 'games:gamelist_page' page|add:1 %}">{{ page|add:1 }}</a></li>
+                {% endif %}
             </ul>
         </nav>
 
