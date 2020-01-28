@@ -145,3 +145,6 @@ TWITTER_API_URL = get_env_value('TWITTER_API_URL')
 
 
 GAME_LIST_LIMIT = 9
+
+
+AUTH_USER_MODEL = 'game_app.Profile'
