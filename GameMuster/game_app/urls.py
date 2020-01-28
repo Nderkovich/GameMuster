@@ -12,5 +12,6 @@ urlpatterns = [
     path('search/page/<int:page>/', views.SearchView.as_view(), name='search'),
     path('sign_in/', views.sign_in, name='sign_in'),
     path('sign_up/', views.sign_up, name='sign_up'),
-    path('profile/<int:id>', views.profile, name='profile')
+    path('profile/<int:id>', views.profile, name='profile'),
+    path('activate/uid=<str:uidb64>/token=<str:token>/', views.activate, name='activation')
 ]
