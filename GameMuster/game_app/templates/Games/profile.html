@@ -1,0 +1,22 @@
+{% extends "Games/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{%block title%}
+Profile
+{% endblock %}
+
+{% block content %}
+<div class="row">
+        <div class="col-sm">
+        </div>
+        <div class="col-sm">
+                <p>Welcome, {{ profile.username }}</p>
+                <p>{{ profile.first_name }} {{profile.last_name}}</p>
+                <p>{{ profile.email }}</p>
+                <p>{{ profile.birthday }}</p>
+        </div>
+        <div class="col-sm">
+        </div>
+      </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "Games/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{%block title%}
+Sign in
+{% endblock %}
+
+{% block content %}
+ <div class="mx-auto" style="width: 40rem;margin-top: 10%">
+    <form action="." method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            {% render_field form.username class="form-control" placeholder="Username" %}
+        </div>
+        <div class="form-group">
+            {% render_field form.password class="form-control" placeholder="Password" %}
+        </div>
+        <input type="submit" class="btn btn-primary" value="Sign in">
+    </form>
+ </div>
+{% endblock %}
