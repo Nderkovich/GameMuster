@@ -3,11 +3,16 @@ from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
 from django.contrib.auth import login, authenticate
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
 
 from .forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
 from .models import Profile
 from .igdb_api import IGDBClient
 from .twitter_api import TwitterApi
+from .tokens import account_activation_token
 
 
 def game_list(request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -100,6 +105,17 @@ def sign_up(request):
                 user = Profile.objects.create_user(username=form['username'], password=form['password'],email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
                 if user:
+                    user.is_active = False
+                    user.save()
+                    mail_subject = 'Activate your account.'
+                    current_site = get_current_site(request)
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = account_activation_token.make_token(user)
+                    activation_link = f'{current_site}/uid={uid}/token={token}/'
+                    message = f'Hello {user.first_name} {user.last_name},\n {activation_link}'
+                    to_email = form['email']
+                    email = EmailMessage(mail_subject, message, to=[to_email])
+                    email.send()
                     return redirect('games:sign_in')
     form = SignUpForm()
     return render(request, 'Games/sign_up.html', {'form': form})
@@ -108,3 +124,13 @@ def sign_up(request):
 def profile(request, id):
     profile = get_object_or_404(Profile, id=id)
     return render(request, 'Games/profile.html', {'profile': profile})
+
+
+def activate(request, uidb64, token):
+    uid = force_text(urlsafe_base64_decode(uidb64))
+    user = get_object_or_404(Profile, id=uid)
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return redirect('games:sign_in')
+        
