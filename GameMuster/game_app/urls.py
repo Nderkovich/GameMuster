@@ -9,5 +9,5 @@ urlpatterns = [
     path('', views.game_list, name='main_page'),
     path('page/<int:page>/', views.game_list, name='gamelist_page'),
     path('game/<int:id>/', views.game_info, name='game_info'),
-    path('search/page/<int:page>/', views.search, name='search')
+    path('search/page/<int:page>/', views.SearchView.as_view(), name='search')
 ]
