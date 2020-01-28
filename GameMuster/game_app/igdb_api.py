@@ -104,21 +104,21 @@ class IGDBClient:
     def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
         url = self.api_url + 'games'
         body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
-        data = requests.post(url, headers=self.headers, data=body)
-        if data.status_code != 200:
-            raise ApiException(data.status_code)
-        return data.json()
+        response = requests.post(url, headers=self.headers, data=body)
+        if not response.ok:
+            raise ApiException(response.status_code)
+        return response.json()
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
         url = self.api_url + 'games'
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        data = requests.post(url, headers=self.headers, data=body)
-        if data.status_code != 200:
-            raise ApiException(data.status_code)
-        return data.json()
+        response = requests.post(url, headers=self.headers, data=body)
+        if not response.ok:
+            raise ApiException(response.status_code)
+        return response.json()
 
-    def _search_games_params(self, lower_lim: int, upper_lim: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
-        query = f'where rating>{lower_lim} & rating<{upper_lim} '
+    def _build_search_query(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None) -> str:
+        query = f'where rating>{lower_limit} & rating<{upper_limit} '
         if platforms:
             str_platforms = (str(platforms)[1:-1]).replace("'", '"')
             query += f'& platforms.abbreviation=({str_platforms}) '
@@ -126,20 +126,24 @@ class IGDBClient:
             str_genres = (str(genres)[1:-1]).replace("'", '"')
             query += f'& genres.name=({str_genres})'
         query += ';'
+        return query
+
+    def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
+        query = self._build_search_query(lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
-        data = requests.post(url, headers=self.headers, data=body)
-        if data.status_code != 200:
-            raise ApiException(data.status_code)
-        return data.json()
+        response = requests.post(url, headers=self.headers, data=body)
+        if not response.ok:
+            raise ApiException(response.status_code)
+        return response.json()
 
     def _search_games_name(self, name, offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        data = requests.post(url, headers=self.headers, data=body)
-        if data.status_code != 200:
-            raise ApiException(data.status_code)
-        return data.json()
+        response = requests.post(url, headers=self.headers, data=body)
+        if not response.ok:
+            raise ApiException(response.status_code)
+        return response.json()
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
@@ -152,8 +156,8 @@ class IGDBClient:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def search_games_list(self, lower_lim: int, upper_lim: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
-        data = self._search_games_params(lower_lim, upper_lim, platforms, genres, offset, limit)
+    def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
+        data = self._search_games_params(lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
     def search_games_by_name(self, name: str, offset: int = 0, limit: int = 9) -> List[Game]:
