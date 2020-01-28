@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
+from django.contrib.auth import login, authenticate
 
-from .forms import SearchListForm, SearchNameForm
+from .forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
+from .models import Profile
 from .igdb_api import IGDBClient
 from .twitter_api import TwitterApi
 
@@ -74,3 +76,35 @@ class SearchView(View):
         else:
             return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
                                                 params['platforms'], params['genres'], offset)
+
+
+def sign_in(request):
+    if request.method == 'POST':
+        form = SignInForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            user = authenticate(request, username=form['username'], password=form['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('games:main_page')
+    form = SignInForm()
+    return render(request, 'Games/sign_in.html', {'form': form})
+
+
+def sign_up(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            if form['password'] == form['confirm_password']:
+                user = Profile.objects.create_user(username=form['username'], password=form['password'],email=form['email'],
+                                                   first_name=form['first_name'], last_name=form['last_name'])
+                if user:
+                    return redirect('games:sign_in')
+    form = SignUpForm()
+    return render(request, 'Games/sign_up.html', {'form': form})
+
+
+def profile(request, id):
+    profile = get_object_or_404(Profile, id=id)
+    return render(request, 'Games/profile.html', {'profile': profile})
