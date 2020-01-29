@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import List, Set, Dict
 from django.conf import settings
-from typing import TypeVar, List, Dict, Optional
+from typing import List, Dict, Optional
 
 import requests
 
@@ -33,7 +32,7 @@ class Game:
         return users_rate
 
     @property
-    def release_date(self) -> Optional[datetime]:
+    def release_date(self) -> Optional[str]:
         if self._data.get('first_release_date'):
             return datetime.utcfromtimestamp(self._data['first_release_date']).strftime('%d %B %Y')
         else:
@@ -88,7 +87,7 @@ class Game:
         return keywords
 
     @property
-    def cover(self) -> str:
+    def cover(self) -> Optional[str]:
         if self._data.get('cover'):
             return self._data['cover']['url'].replace('thumb', 'cover_big')
         else:
@@ -101,23 +100,24 @@ class IGDBClient:
         self.headers = {'user-key': user_key}
         self.api_url = api_url
 
-    def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
-        url = self.api_url + 'games'
-        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
-        response = requests.post(url, headers=self.headers, data=body)
+    def _make_request(self, url, headers: str, body: str) -> dict:
+        response = requests.post(url, headers=headers, data=body)
         if not response.ok:
             raise ApiException(response.status_code)
         return response.json()
+
+    def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
+        url = self.api_url + 'games'
+        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
+        return self._make_request(url, self.headers, body)
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
         url = self.api_url + 'games'
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        response = requests.post(url, headers=self.headers, data=body)
-        if not response.ok:
-            raise ApiException(response.status_code)
-        return response.json()
+        return self._make_request(url, self.headers, body)
 
-    def _build_search_query(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None) -> str:
+    def _build_search_query(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                            genres: Optional[List[str]] = None) -> str:
         query = f'where rating>{lower_limit} & rating<{upper_limit} '
         if platforms:
             str_platforms = (str(platforms)[1:-1]).replace("'", '"')
@@ -128,23 +128,18 @@ class IGDBClient:
         query += ';'
         return query
 
-    def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
+    def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                             genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
-        response = requests.post(url, headers=self.headers, data=body)
-        if not response.ok:
-            raise ApiException(response.status_code)
-        return response.json()
+        return self._make_request(url, self.headers, body)
 
     def _search_games_name(self, name, offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
-        response = requests.post(url, headers=self.headers, data=body)
-        if not response.ok:
-            raise ApiException(response.status_code)
-        return response.json()
+        return self._make_request(url, self.headers, body)
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
@@ -157,7 +152,8 @@ class IGDBClient:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
+    def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                          genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
         data = self._search_games_params(
             lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
