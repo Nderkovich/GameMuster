@@ -45,7 +45,7 @@ def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
 class SearchView(View):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
 
-    def get(self, request, page=1):
+    def get(self, request: HttpRequest, page: int = 1) -> HttpResponse:
         list_search_form = SearchListForm()
         name_search_form = SearchNameForm()
         params = self._get_params(request.GET)
@@ -58,11 +58,11 @@ class SearchView(View):
                                                    'params': url_params,
                                                    'url_path': '/search/'})
 
-    def post(self, request, page=1):
+    def post(self, request: HttpRequest, page: int = 1) -> HttpResponse:
         url_params = request.POST.urlencode()
         return redirect(f'/search/page/1/?{url_params}')
 
-    def _get_params(self, request_dict):
+    def _get_params(self, request_dict: dict) -> dict:
         params = {}
         if request_dict.getlist('name'):
             params['name'] = request_dict.getlist('name')[0]
@@ -73,8 +73,8 @@ class SearchView(View):
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
 
-    def _get_game_list(self, params, page):
-        offset = (page - 1) * settings.GAME_LIST_LIMIT
+    def _get_game_list(self, params: dict, page: int) -> list:
+        offset: int = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
             return self.api_client.search_games_by_name(params['name'], offset)
         else:
@@ -82,7 +82,7 @@ class SearchView(View):
                                                      params['platforms'], params['genres'], offset)
 
 
-def sign_in(request):
+def sign_in(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = SignInForm(request.POST)
         if form.is_valid():
@@ -96,7 +96,7 @@ def sign_in(request):
     return render(request, 'Games/sign_in.html', {'form': form})
 
 
-def sign_up(request):
+def sign_up(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -114,12 +114,12 @@ def sign_up(request):
     return render(request, 'Games/sign_up.html', {'form': form})
 
 
-def profile_view(request, id):
+def profile_view(request: HttpRequest, id: int) -> HttpResponse:
     profile = get_object_or_404(Profile, id=id)
     return render(request, 'Games/profile.html', {'profile': profile})
 
 
-def activation_view(request, uidb64, token):
+def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
     uid = force_text(urlsafe_base64_decode(uidb64))
     user = get_object_or_404(Profile, id=uid)
     if user is not None and check_token(user, token):

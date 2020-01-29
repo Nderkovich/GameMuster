@@ -6,13 +6,13 @@ from .models import Profile
 from .tokens import TokenGenerator
 
 
-def create_confirm_token(user):
+def create_confirm_token(user: Profile) -> str:
     token_generator = TokenGenerator()
-    token = token_generator.make_token(user)
+    token: str = token_generator.make_token(user)
     return token
 
 
-def send_activation_email(user, token, current_site):
+def send_activation_email(user: Profile, token: str, current_site: str) -> None:
     mail_subject = 'Activate your account.'
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     activation_link = f'{current_site}/activate/uid={uid}/token={token}/'
@@ -21,6 +21,6 @@ def send_activation_email(user, token, current_site):
     email.send()
 
 
-def check_token(user, token):
+def check_token(user: Profile, token: str) -> bool:
     token_generator = TokenGenerator()
     return token_generator.check_token(user, token)
