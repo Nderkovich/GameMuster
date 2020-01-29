@@ -73,10 +73,6 @@ class TwitterApi:
         body = {'grant_type': 'client_credentials'}
         response = requests.post(f'{self._api_url}oauth2/token',
                                  headers=headers, data=body)
-        print(f'{self._api_url}oauth2/token')
-        print(response)
-        print(headers)
-        print(body)
         if not response.ok:
             raise TwitterError(response.status_code)
         else:
