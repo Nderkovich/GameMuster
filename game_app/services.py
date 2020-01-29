@@ -2,8 +2,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 
-from .models import Profile
-from .tokens import TokenGenerator
+from game_app.models import Profile
+from game_app.tokens import TokenGenerator
 
 
 def create_confirm_token(user):

@@ -8,11 +8,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
 
 
-from .forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
-from .models import Profile
-from .igdb_api import IGDBClient
-from .twitter_api import TwitterApi
-from .services import send_activation_email, create_confirm_token, check_token
+from game_app.forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
+from game_app.models import Profile
+from game_app.igdb_api import IGDBClient
+from game_app.twitter_api import TwitterApi
+from game_app.services import send_activation_email, create_confirm_token, check_token
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:

@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import List, Set, Dict
 from django.conf import settings
-from typing import TypeVar, List, Dict, Optional
+from typing import List, Dict, Optional
 
 import requests
 
