@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseNotFound
 from django.conf import settings
 from django.views import View
 from django.contrib.auth import login, authenticate
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
-
+from django.contrib.auth.decorators import login_required
 
 from game_app.forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
-from game_app.models import Profile
+from game_app.models import Profile, Game
 from game_app.igdb_api import IGDBClient
 from game_app.twitter_api import TwitterApi
 from game_app.services import send_activation_email, create_confirm_token, check_token
@@ -126,3 +126,27 @@ def activation_view(request, uidb64, token):
         user.is_active = True
         user.save()
         return redirect('games:sign_in')
+
+
+@login_required
+def add_to_favorites_view(request, game_id):
+    game = Game.objects.filter(game_id=game_id).first()
+    if game:
+        game.user_profiles.add(request.user)
+        game.save()
+    else:
+        game = Game(game_id=game_id)
+        game.user_profiles.add(request.user)
+        game.save()
+    return redirect('games:game_info', game_id)
+
+
+@login_required
+def remove_from_favorites_view(request, game_id):
+    game = Game.objects.filter(game_id=game_id).first()
+    if game:
+        if request.user.favorite_games.all().filter(game_id=game_id):
+            game.user_profiles.remove(request.user)
+            game.save()
+            return redirect('games:game_info', game_id)
+    return HttpResponseNotFound()
