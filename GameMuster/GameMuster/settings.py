@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'game_app.apps.GameAppConfig',
 ]
 
@@ -137,3 +138,6 @@ IGDB_API_KEY = get_env_value('IGDB_API_KEY')
 TWITTER_API_KEY = get_env_value('TWITTER_API_KEY')
 TWITTER_SECRET_API_KEY = get_env_value('TWITTER_SECRET_API_KEY')
 TWITTER_API_URL = get_env_value('TWITTER_API_URL')
+
+
+GAME_LIST_LIMIT = 9

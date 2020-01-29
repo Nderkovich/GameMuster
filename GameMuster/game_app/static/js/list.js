@@ -15,18 +15,18 @@ var $range = $(".js-range-slider"),
     $inputTo = $(".js-input-to"),
     instance,
     min = 0,
-    max = 10,
+    max = 100,
     from = 0,
-    to = 10;
+    to = 100;
 
 $range.ionRangeSlider({
     skin: "round",
-    type: "double",
+    type: "integer",
     min: min,
     max: max,
     from: 0,
-    to: 10,
-    step: 0.1,
+    to: 100,
+    step: 1,
     onStart: updateInputs,
     onChange: updateInputs
 });
