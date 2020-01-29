@@ -130,7 +130,8 @@ class IGDBClient:
 
     def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
-        query = self._build_search_query(lower_limit, upper_limit, platforms, genres)
+        query = self._build_search_query(
+            lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
         response = requests.post(url, headers=self.headers, data=body)
         if not response.ok:
@@ -157,7 +158,8 @@ class IGDBClient:
         return [Game(game_data['id'], game_data) for game_data in data]
 
     def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
-        data = self._search_games_params(lower_limit, upper_limit, platforms, genres, offset, limit)
+        data = self._search_games_params(
+            lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
     def search_games_by_name(self, name: str, offset: int = 0, limit: int = 9) -> List[Game]:

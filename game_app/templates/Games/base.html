@@ -24,11 +24,23 @@
 
 <body>
     <div class="container-fluid main-container">
-        <nav class="navbar navbar-dark bg-danger">
+        <nav class="navbar navbar-dark bg-danger navbar navbar-expand-lg">
             <a class="navbar-brand" href="{% url 'games:main_page' %}">
                 <img src="{% static "img/game.png" %}" width="40" height="40" alt="">
                 <span>GameMuster</span>
             </a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup"></div>
+                <div class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <a class="navbar-brand" href="{% url 'games:profile' user.id %}">
+                                Profile
+                        </a>
+                    {% else %}
+                        <a class="nav-item nav-link" href="{% url 'games:sign_in' %}">Sign in</a>
+                        <a class="nav-item nav-link" href="{% url 'games:sign_up' %}">Sign up</a>
+                    {% endif %}
+                </div>
+            </div>
         </nav>
     </div>
     <div class="container-fluid">

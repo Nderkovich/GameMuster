@@ -1,11 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
+from django.contrib.auth import login, authenticate
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
 
-from .forms import SearchListForm, SearchNameForm
+from .forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
+from .models import Profile
 from .igdb_api import IGDBClient
 from .twitter_api import TwitterApi
+from .tokens import account_activation_token
 
 
 def game_list(request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -66,11 +73,64 @@ class SearchView(View):
             params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit')[0]
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
-    
+
     def _get_gamelist(self, params, page):
         offset = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
             return self.api_client.search_games_by_name(params['name'], offset)
         else:
             return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
-                                                params['platforms'], params['genres'], offset)
+                                                     params['platforms'], params['genres'], offset)
+
+
+def sign_in(request):
+    if request.method == 'POST':
+        form = SignInForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            user = authenticate(
+                request, username=form['username'], password=form['password'])
+            if user is not None:
+                login(request, user)
+                return redirect('games:main_page')
+    form = SignInForm()
+    return render(request, 'Games/sign_in.html', {'form': form})
+
+
+def sign_up(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            if form['password'] == form['confirm_password']:
+                user = Profile.objects.create_user(username=form['username'], password=form['password'], email=form['email'],
+                                                   first_name=form['first_name'], last_name=form['last_name'])
+                if user:
+                    user.is_active = False
+                    user.save()
+                    mail_subject = 'Activate your account.'
+                    current_site = get_current_site(request)
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    token = account_activation_token.make_token(user)
+                    activation_link = f'{current_site}/uid={uid}/token={token}/'
+                    message = f'Hello {user.first_name} {user.last_name},\n {activation_link}'
+                    to_email = form['email']
+                    email = EmailMessage(mail_subject, message, to=[to_email])
+                    email.send()
+                    return redirect('games:sign_in')
+    form = SignUpForm()
+    return render(request, 'Games/sign_up.html', {'form': form})
+
+
+def profile(request, id):
+    profile = get_object_or_404(Profile, id=id)
+    return render(request, 'Games/profile.html', {'profile': profile})
+
+
+def activate(request, uidb64, token):
+    uid = force_text(urlsafe_base64_decode(uidb64))
+    user = get_object_or_404(Profile, id=uid)
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return redirect('games:sign_in')
