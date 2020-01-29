@@ -87,12 +87,12 @@ WSGI_APPLICATION = 'GameMuster.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'django_db',
-        'USER' : 'gamemuster',
-        'PASSWORD' : '12345',
-        'HOST' : '0.0.0.0',
-        'PORT' : '54320',
+        'ENGINE': get_env_value('DB_ENGINE'),
+        'NAME': get_env_value('DB_NAME'),
+        'USER' : get_env_value('DB_USER'),
+        'PASSWORD' : get_env_value('DB_PASSWORD'),
+        'HOST' : get_env_value('DB_HOST'),
+        'PORT' : get_env_value('DB_PORT'),
     }
 }
 

@@ -73,14 +73,14 @@ class SearchView(View):
             params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit')[0]
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
-    
+
     def _get_gamelist(self, params, page):
         offset = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
             return self.api_client.search_games_by_name(params['name'], offset)
         else:
             return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
-                                                params['platforms'], params['genres'], offset)
+                                                     params['platforms'], params['genres'], offset)
 
 
 def sign_in(request):
@@ -88,7 +88,8 @@ def sign_in(request):
         form = SignInForm(request.POST)
         if form.is_valid():
             form = form.cleaned_data
-            user = authenticate(request, username=form['username'], password=form['password'])
+            user = authenticate(
+                request, username=form['username'], password=form['password'])
             if user is not None:
                 login(request, user)
                 return redirect('games:main_page')
@@ -102,7 +103,7 @@ def sign_up(request):
         if form.is_valid():
             form = form.cleaned_data
             if form['password'] == form['confirm_password']:
-                user = Profile.objects.create_user(username=form['username'], password=form['password'],email=form['email'],
+                user = Profile.objects.create_user(username=form['username'], password=form['password'], email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
                 if user:
                     user.is_active = False
@@ -133,4 +134,3 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         return redirect('games:sign_in')
-        
