@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import List, Set, Dict
 from django.conf import settings
-from typing import TypeVar, List, Dict, Optional
+from typing import List, Dict, Optional
 
 import requests
 
@@ -117,7 +116,8 @@ class IGDBClient:
             raise ApiException(response.status_code)
         return response.json()
 
-    def _build_search_query(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None) -> str:
+    def _build_search_query(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                            genres: Optional[List[str]] = None) -> str:
         query = f'where rating>{lower_limit} & rating<{upper_limit} '
         if platforms:
             str_platforms = (str(platforms)[1:-1]).replace("'", '"')
@@ -128,7 +128,8 @@ class IGDBClient:
         query += ';'
         return query
 
-    def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
+    def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                             genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
         url = self.api_url + 'games'
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
@@ -157,7 +158,8 @@ class IGDBClient:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None, genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
+    def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
+                          genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
         data = self._search_games_params(
             lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
