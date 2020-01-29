@@ -12,7 +12,7 @@ from game_app.forms import SearchListForm, SearchNameForm, SignInForm, SignUpFor
 from game_app.models import Profile, Game
 from game_app.igdb_api import IGDBClient
 from game_app.twitter_api import TwitterApi
-from game_app.services import send_activation_email, create_confirm_token, check_token
+from game_app.services import send_activation_email, create_confirm_token, check_token, get_user_favorite_games
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -116,7 +116,9 @@ def sign_up(request):
 
 def profile_view(request, id):
     profile = get_object_or_404(Profile, id=id)
-    return render(request, 'Games/profile.html', {'profile': profile})
+    user_favorites = get_user_favorite_games(profile)
+    return render(request, 'Games/profile.html', {'profile': profile,
+                                                  'user_favorites': user_favorites})
 
 
 def activation_view(request, uidb64, token):
