@@ -11,7 +11,7 @@ Info
     <div class="col-7 top-buffer mx-3">
         <div class="row">
             <h1>{{ game.name }}</h1>
-            <h1><span class="badge badge-danger mx-2">MUST</span></h1>
+            <h1><a class="badge badge-danger mx-2" href="{% url 'games:add_to_favorite' game.id %}">MUST</a></h1>
         </div>
         <div class="row"></div>
         <h2>Description</h2>
