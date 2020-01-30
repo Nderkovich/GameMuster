@@ -3,8 +3,8 @@ from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 from django.conf import settings
 
-from game_app.models import Profile
-from game_app.tokens import TokenGenerator
+from profiles_app.models import Profile
+from profiles_app.tokens import TokenGenerator
 from game_app.igdb_api import IGDBClient
 
 
@@ -33,4 +33,7 @@ def get_user_favorite_games(user):
     ids = []
     for g in user.favorite_games.all():
         ids.append(g.game_id)
-    return api_client.get_user_favorites_by_ids(ids)
+    if ids:
+        return api_client.get_user_favorites_by_ids(ids)
+    else:
+        return None
