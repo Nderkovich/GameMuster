@@ -147,7 +147,7 @@ def add_to_favorites_view(request, game_id):
 def remove_from_favorites_view(request, game_id):
     game = Game.objects.filter(game_id=game_id).first()
     if game:
-        if request.user.favorite_games.all().filter(game_id=game_id):
+        if request.user.is_in_favorite(game_id):
             game.user_profiles.remove(request.user)
             game.save()
             return redirect('games:game_info', game_id)
