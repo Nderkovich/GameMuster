@@ -30,10 +30,10 @@ def get_env_value(env_var):
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#ogmy9^eb48wr03w0uo6*c^#osa9f&itxcyegc)obzqffel(p%'
+SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env_value('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -89,10 +89,10 @@ DATABASES = {
     'default': {
         'ENGINE': get_env_value('DB_ENGINE'),
         'NAME': get_env_value('DB_NAME'),
-        'USER' : get_env_value('DB_USER'),
-        'PASSWORD' : get_env_value('DB_PASSWORD'),
-        'HOST' : get_env_value('DB_HOST'),
-        'PORT' : get_env_value('DB_PORT'),
+        'USER': get_env_value('DB_USER'),
+        'PASSWORD': get_env_value('DB_PASSWORD'),
+        'HOST': get_env_value('DB_HOST'),
+        'PORT': get_env_value('DB_PORT'),
     }
 }
 
