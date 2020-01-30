@@ -141,9 +141,9 @@ class IGDBClient:
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
 
-    def _get_game_names_by_ids(self, ids):
+    def _get_games_data_by_ids(self, ids):
         url = self.api_url + 'games'
-        body = f'fields name; where id=({str(ids)[1:-1]});'
+        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({str(ids)[1:-1]});'
         return self._get_data(url, self.headers, body)
         
 
@@ -168,6 +168,6 @@ class IGDBClient:
         data = self._search_games_name(name, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def get_user_favorites_by_ids(self, ids):
-        data = self._get_game_names_by_ids(ids)
+    def get_games_by_ids(self, ids):
+        data = self._get_games_data_by_ids(ids)
         return [Game(game_data['id'], game_data) for game_data in data]
