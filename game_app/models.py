@@ -18,7 +18,7 @@ class Game(models.Model):
 
 class Keyword(models.Model):
     keyword_id = models.IntegerField()
-    Keyword_name = models.CharField(max_length=100)
+    keyword_name = models.CharField(max_length=100)
     game = models.ManyToManyField(Game, related_name='keywords')
 
 
