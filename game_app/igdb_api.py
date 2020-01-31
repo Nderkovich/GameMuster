@@ -146,6 +146,14 @@ class IGDBClient:
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({str(ids)[1:-1]});'
         return self._get_data(url, self.headers, body)
         
+    def _get_full_games_data(self, offset=0, limit = 9):
+        url = self.api_url + 'games'
+        fields = ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
+                                              'genres.name', 'keywords.name', 'name', 'platforms.name',
+                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                                              'screenshots.url']
+        body = f"fields {str(fields)[1:-1]};limit {limit};offset {offset};"
+        return self._get_data(url, self.headers, body)
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
@@ -171,3 +179,7 @@ class IGDBClient:
     def get_games_by_ids(self, ids):
         data = self._get_games_data_by_ids(ids)
         return [Game(game_data['id'], game_data) for game_data in data]
+
+    def get_game_list_full_data(self, offset=0, limit=9):
+        data = self._get_full_games_data(offset, limit)
+        return data

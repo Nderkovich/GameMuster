@@ -7,8 +7,3 @@ class Profile(AbstractUser):
 
     def is_in_favorite(self, game_id):
         return self.favorite_games.all().filter(game_id=game_id).exists()
-
-
-class Game(models.Model):
-    game_id = models.IntegerField()
-    user_profiles = models.ManyToManyField(Profile, related_name='favorite_games', null=True)
