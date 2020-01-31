@@ -55,18 +55,18 @@ Home
         <div class="row top-buffer">
             {% for game in game_list %}
             <div class="card game-card">
-                <img src="{% if game.cover %}{{ game.cover }}{% else %}{% static 'img/no_img.jpg' %}{% endif %}"
+               <img src="{% if game.cover_url %}{{ game.cover_url }}{% else %}{% static 'img/no_img.jpg' %}{% endif %}"
                     class="card-img-top game_cover">
                 <div class="card-body bg-dark text-white">
-                    <h5>{{ game.name }}</h5>
+                    <h5>{{ game.game_name }}</h5>
                     <p class="card-text">
-                        {% for keyword in game.keywords|slice:"0:2" %}
-                        <span>{{ keyword }}</span>
+                        {% for keyword in game.keywords.all|slice:"0:2" %}
+                        <span>{{ keyword.keyword_name }}</span>
                         {% endfor %}
                     </p>
                     <p class="card-text">
                         <span class="badge badge-pill badge-light"><a
-                                href="{% url 'games:game_info' game.id %}">Open</a></span>
+                                href="{% url 'games:game_info' game.game_id %}">Open</a></span>
                         <span class="badge badge-pill badge-light">Must</span>
                     </p>
                 </div>
