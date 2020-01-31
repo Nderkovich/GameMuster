@@ -30,8 +30,8 @@ class Genre(models.Model):
 
 class Platform(models.Model):
     platform_id = models.IntegerField()
-    platfrom_name = models.CharField(max_length=100)
-    platfrom_abbreviation = models.CharField(max_length=20, null=True)
+    platform_name = models.CharField(max_length=100)
+    platform_abbreviation = models.CharField(max_length=20, null=True)
     game = models.ManyToManyField(Game, related_name='platforms')
 
 
