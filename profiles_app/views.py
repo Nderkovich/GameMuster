@@ -63,7 +63,7 @@ def activation_view(request, uidb64, token):
 @login_required
 def add_to_favorites_view(request, game_id):
     try:
-        game = Game.objects.get(game_id=game)
+        game = Game.objects.get(game_id=game_id)
     except Game.DoesNotExist:
         game = Game(game_id=game_id)
         game.save()
@@ -75,7 +75,7 @@ def add_to_favorites_view(request, game_id):
 @login_required
 def remove_from_favorites_view(request, game_id):
     try:
-        game = Game.objects.get(game_id=game)
+        game = Game.objects.get(game_id=game_id)
     except Game.DoesNotExist:
         game = None
     if game:
