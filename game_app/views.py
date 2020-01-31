@@ -2,21 +2,23 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
+from django.core.paginator import Paginator
 
 from game_app.forms import SearchListForm, SearchNameForm
 from game_app.igdb_api import IGDBClient
 from game_app.twitter_api import TwitterApi
+from game_app.models import Game
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
-    api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    offset = (page - 1) * settings.GAME_LIST_LIMIT
-    list_search_form = SearchListForm()
-    name_search_form = SearchNameForm()
     if request.method == 'POST':
         url_params = request.POST.urlencode()
         return redirect(f'/search/page/1/?{url_params}')
-    game_list = api_client.get_game_list(offset)
+    list_search_form = SearchListForm()
+    name_search_form = SearchNameForm()
+    games = Game.objects.all()
+    paginator = Paginator(games, settings.GAME_LIST_LIMIT)
+    game_list = paginator.get_page(page).object_list
     return render(request, 'Games/list.html', {'game_list': game_list,
                                                'page': page,
                                                'list_search_form': list_search_form,
