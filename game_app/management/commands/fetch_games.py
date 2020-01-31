@@ -68,8 +68,8 @@ class Command(BaseCommand):
     def create_platform(self, platform_data):
         if not Platform.objects.filter(platform_id=platform_data['id']).exists():
             platform = Platform(platform_id=platform_data['id'])
-            platform.platfrom_name = platform_data.get('name')
-            platform.platfrom_abbreviation = platform_data.get('abbreviation')
+            platform.platform_name = platform_data.get('name')
+            platform.platform_abbreviation = platform_data.get('abbreviation')
             platform.save()
         else:
             platform = Platform.objects.get(platform_id=platform_data['id'])
