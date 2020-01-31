@@ -70,7 +70,15 @@ class SearchView(View):
     def _get_game_list(self, params: dict, page: int) -> list:
         offset = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
-            return self.api_client.search_games_by_name(params['name'], offset)
+            games = Game.objects.filter(game_name__contains=params['name']).all()
+            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
+            return paginator.get_page(page).object_list
         else:
-            return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
-                                                     params['platforms'], params['genres'], offset)
+            games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
+                                        user_rating__lte=int(params['rating_upper_limit'])).all()
+            if params['platforms']:
+                games = games.filter(platforms__platform_abbreviation__in=params['platforms']).all()
+            if params['genres']:
+                games = games.filter(genres__genre_name__in=params['genres']).all()
+            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
+            return paginator.get_page(page).object_list
