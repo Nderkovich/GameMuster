@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
@@ -28,11 +28,10 @@ def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
 
 
 def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
-    igdb_api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    game = igdb_api_client.get_game_by_id(game_id)
+    game = get_object_or_404(Game, game_id=game_id)
     twitter_api_client = TwitterApi(
         settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
-    tweets = twitter_api_client.search_tweets(f'"{game.name}"')
+    tweets = twitter_api_client.search_tweets(f'"{game.game_name}"')
     return render(request, 'Games/game.html', {'game': game,
                                                'tweets': tweets})
 
