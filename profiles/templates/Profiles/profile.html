@@ -17,6 +17,10 @@ Profile
                 <p>{{ profile.birthday }}</p>
         </div>
         <div class="col-sm">
+                {% for game in user_favorites %}
+                <a href="/game/{{ game.id }}">{{game.name}}</a>
+                <br>
+                {% endfor %}
         </div>
       </div>
 {% endblock %}

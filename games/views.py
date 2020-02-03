@@ -1,18 +1,13 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpRequest
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
 from django.conf import settings
 from django.views import View
-from django.contrib.auth import login, authenticate
-from django.utils.encoding import force_text
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_decode
 
-
-from game_app.forms import SearchListForm, SearchNameForm, SignInForm, SignUpForm
-from game_app.models import Profile
-from game_app.igdb_api import IGDBClient
-from game_app.twitter_api import TwitterApi
-from game_app.services import send_activation_email, create_confirm_token, check_token
+from games.forms import SearchListForm, SearchNameForm
+from games.igdb_api import IGDBClient
+from games.twitter_api import TwitterApi
+from games.models import Game
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -45,7 +40,7 @@ def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
 class SearchView(View):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
 
-    def get(self, request, page=1):
+    def get(self, request: HttpRequest, page: int = 1) -> HttpResponse:
         list_search_form = SearchListForm()
         name_search_form = SearchNameForm()
         params = self._get_params(request.GET)
@@ -58,11 +53,11 @@ class SearchView(View):
                                                    'params': url_params,
                                                    'url_path': '/search/'})
 
-    def post(self, request, page=1):
+    def post(self, request: HttpRequest, page: int = 1) -> HttpResponse:
         url_params = request.POST.urlencode()
         return redirect(f'/search/page/1/?{url_params}')
 
-    def _get_params(self, request_dict):
+    def _get_params(self, request_dict) -> dict:
         params = {}
         if request_dict.getlist('name'):
             params['name'] = request_dict.getlist('name')[0]
@@ -73,7 +68,7 @@ class SearchView(View):
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
 
-    def _get_game_list(self, params, page):
+    def _get_game_list(self, params: dict, page: int) -> list:
         offset = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
             return self.api_client.search_games_by_name(params['name'], offset)
@@ -82,47 +77,27 @@ class SearchView(View):
                                                      params['platforms'], params['genres'], offset)
 
 
-def sign_in(request):
-    if request.method == 'POST':
-        form = SignInForm(request.POST)
-        if form.is_valid():
-            form = form.cleaned_data
-            user = authenticate(
-                request, username=form['username'], password=form['password'])
-            if user is not None:
-                login(request, user)
-                return redirect('games:main_page')
-    form = SignInForm()
-    return render(request, 'Games/sign_in.html', {'form': form})
+@login_required
+def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        game = Game(game_id=game_id)
+        game.save()
+    game.user_profiles.add(request.user)
+    game.save()
+    return redirect('games:game_info', game_id)
 
 
-def sign_up(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form = form.cleaned_data
-            if form['password'] == form['confirm_password']:
-                user = Profile.objects.create_user(username=form['username'], password=form['password'], email=form['email'],
-                                                   first_name=form['first_name'], last_name=form['last_name'])
-                if user:
-                    user.is_active = False
-                    user.save()
-                    send_activation_email(user, create_confirm_token(user),
-                                          get_current_site(request))
-                    return redirect('games:sign_in')
-    form = SignUpForm()
-    return render(request, 'Games/sign_up.html', {'form': form})
-
-
-def profile_view(request, id):
-    profile = get_object_or_404(Profile, id=id)
-    return render(request, 'Games/profile.html', {'profile': profile})
-
-
-def activation_view(request, uidb64, token):
-    uid = force_text(urlsafe_base64_decode(uidb64))
-    user = get_object_or_404(Profile, id=uid)
-    if user is not None and check_token(user, token):
-        user.is_active = True
-        user.save()
-        return redirect('games:sign_in')
+@login_required
+def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpResponse:
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        return HttpResponseNotFound()
+    if request.user.is_in_favorite(game_id):
+        game.user_profiles.remove(request.user)
+        game.save()
+        return redirect('games:game_info', game_id)
+    else:
+        return HttpResponseBadRequest()

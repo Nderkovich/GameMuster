@@ -2,8 +2,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 
-from game_app.models import Profile
-from game_app.tokens import TokenGenerator
+from profiles.tokens import TokenGenerator
 
 
 def create_confirm_token(user):
@@ -15,7 +14,7 @@ def create_confirm_token(user):
 def send_activation_email(user, token, current_site):
     mail_subject = 'Activate your account.'
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    activation_link = f'{current_site}/activate/uid={uid}/token={token}/'
+    activation_link = f'{current_site}/profile/activate/uid={uid}/token={token}/'
     message = f'Hello {user.first_name} {user.last_name},\n {activation_link}'
     email = EmailMessage(mail_subject, message, to=[user.email])
     email.send()
