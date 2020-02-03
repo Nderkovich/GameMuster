@@ -26,25 +26,6 @@ def sign_in(request: HttpRequest) -> HttpResponse:
     return render(request, 'Profiles/sign_in.html', {'form': form})
 
 
-def sign_up(request: HttpRequest) -> HttpResponse:
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form = form.cleaned_data
-            if form['password'] == form['confirm_password']:
-                user = Profile.objects.create_user(username=form['username'], password=form['password'],
-                                                   email=form['email'],
-                                                   first_name=form['first_name'], last_name=form['last_name'])
-                if user:
-                    user.is_active = False
-                    user.save()
-                    send_activation_email(user, create_confirm_token(user),
-                                          get_current_site(request))
-                    return redirect('user_profile:sign_in')
-    form = SignUpForm()
-    return render(request, 'Profiles/sign_up.html', {'form': form})
-
-
 class SignUpView(View):
     def get(self, request):
         form = SignUpForm()

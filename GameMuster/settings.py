@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'games.apps.GameAppConfig',
-    'profiles.apps.ProfilesAppConfig'
+    'games.apps.GamesConfig',
+    'profiles.apps.ProfilesConfig'
 ]
 
 MIDDLEWARE = [

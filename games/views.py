@@ -4,10 +4,10 @@ from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpRes
 from django.conf import settings
 from django.views import View
 
-from game_app.forms import SearchListForm, SearchNameForm
-from game_app.igdb_api import IGDBClient
-from game_app.twitter_api import TwitterApi
-from game_app.models import Game
+from games.forms import SearchListForm, SearchNameForm
+from games.igdb_api import IGDBClient
+from games.twitter_api import TwitterApi
+from games.models import Game
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:

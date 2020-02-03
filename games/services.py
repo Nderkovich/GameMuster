@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from game_app.igdb_api import IGDBClient
+from games.igdb_api import IGDBClient
 
 
 def get_user_favorite_games(user):
