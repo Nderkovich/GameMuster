@@ -1,11 +1,13 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
 from django.conf import settings
 from django.views import View
 
 from game_app.forms import SearchListForm, SearchNameForm
 from game_app.igdb_api import IGDBClient
 from game_app.twitter_api import TwitterApi
+from game_app.models import Game
 
 
 def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -73,3 +75,29 @@ class SearchView(View):
         else:
             return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
                                                      params['platforms'], params['genres'], offset)
+
+
+@login_required
+def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        game = Game(game_id=game_id)
+        game.save()
+    game.user_profiles.add(request.user)
+    game.save()
+    return redirect('games:game_info', game_id)
+
+
+@login_required
+def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpResponse:
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        return HttpResponseNotFound()
+    if request.user.is_in_favorite(game_id):
+        game.user_profiles.remove(request.user)
+        game.save()
+        return redirect('games:game_info', game_id)
+    else:
+        return HttpResponseBadRequest()

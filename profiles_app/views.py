@@ -3,13 +3,13 @@ from django.contrib.auth import login, authenticate
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 
 from profiles_app.forms import SignInForm, SignUpForm
-from profiles_app.models import Profile, Game
-from profiles_app.services import send_activation_email, create_confirm_token, check_token, get_user_favorite_games
+from profiles_app.models import Profile
+from profiles_app.services import send_activation_email, create_confirm_token, check_token
+from game_app.services import get_user_favorite_games
 
 
 def sign_in(request: HttpRequest) -> HttpResponse:
@@ -78,32 +78,3 @@ def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpRespon
     if user is not None and check_token(user, token):
         user.activate()
         return redirect('user_profile:sign_in')
-
-
-@login_required
-def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = Game(game_id=game_id)
-        game.save()
-    game.user_profiles.add(request.user)
-    game.save()
-    return redirect('games:game_info', game_id)
-
-
-@login_required
-def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpResponse:
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = None
-    if game:
-        if request.user.is_in_favorite(game_id):
-            game.user_profiles.remove(request.user)
-            game.save()
-            return redirect('games:game_info', game_id)
-        else:
-            return HttpResponseBadRequest()
-    else:
-        return HttpResponseNotFound()
