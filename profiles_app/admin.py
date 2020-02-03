@@ -1,11 +1,7 @@
 from django.contrib import admin
-from profiles_app.models import Profile, Game
+from profiles_app.models import Profile
 
 
 @admin.register(Profile)
-class ProfleAdmin(admin.ModelAdmin):
-    pass
-
-@admin.register(Game)
-class GameAdmin(admin.ModelAdmin):
+class ProfileAdmin(admin.ModelAdmin):
     pass
