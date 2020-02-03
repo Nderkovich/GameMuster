@@ -5,6 +5,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
+from django.contrib import messages
 
 from profiles.forms import SignInForm, SignUpForm
 from profiles.models import Profile
@@ -22,6 +23,10 @@ def sign_in(request: HttpRequest) -> HttpResponse:
             if user is not None:
                 login(request, user)
                 return redirect('games:main_page')
+            else:
+                messages.warning(request, 'Invalid username or password')
+        else:
+            messages.warning(request, 'Invalid form data')
     form = SignInForm()
     return render(request, 'Profiles/sign_in.html', {'form': form})
 
@@ -39,11 +44,13 @@ class SignUpView(View):
                 user = Profile.objects.create_user(username=form['username'], password=form['password'],
                                                    email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
-                if user:
-                    user.deactivate()
-                    send_activation_email(user, create_confirm_token(user),
-                                          get_current_site(request))
-                    return redirect('user_profile:sign_in')
+                user.deactivate()
+                send_activation_email(user, create_confirm_token(user),
+                                      get_current_site(request))
+                return redirect('user_profile:sign_in')
+            else:
+                messages.warning(request, 'Invalid form data')
+                return redirect('user_profile:sign_up')
 
 
 def profile_view(request: HttpRequest, profile_id: int) -> HttpResponse:
@@ -56,6 +63,5 @@ def profile_view(request: HttpRequest, profile_id: int) -> HttpResponse:
 def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
     uid = force_text(urlsafe_base64_decode(uidb64))
     user = get_object_or_404(Profile, id=uid)
-    if user is not None and check_token(user, token):
-        user.activate()
-        return redirect('user_profile:sign_in')
+    user.activate()
+    return redirect('user_profile:sign_in')
