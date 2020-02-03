@@ -15,8 +15,3 @@ class Profile(AbstractUser):
     def deactivate(self):
         self.is_active = False
         self.save()
-
-
-class Game(models.Model):
-    game_id = models.IntegerField()
-    user_profiles = models.ManyToManyField(Profile, related_name='favorite_games', null=True)
