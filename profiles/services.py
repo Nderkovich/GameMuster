@@ -2,7 +2,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 
-from profiles_app.tokens import TokenGenerator
+from profiles.tokens import TokenGenerator
 
 
 def create_confirm_token(user):
