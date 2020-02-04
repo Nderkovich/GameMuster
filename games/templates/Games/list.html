@@ -88,8 +88,10 @@ Home
                 <li class="page-item"><a class="page-link bg-danger text-white"
                         href="{{ url_path }}page/{{page|add:-1}}/?{{params}}">{{ page|add:-1 }}</a></li>
                 <li class="page-item"><a class="page-link bg-danger text-white">{{ page }}</a></li>
-                <li class="page-item"><a class="page-link bg-danger text-white"
-                        href="{{ url_path }}page/{{page|add:1}}/?{{params}}">{{ page|add:1 }}</a></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link bg-danger text-white"
+                                href="{{ url_path }}page/{{page|add:1}}/?{{params}}">{{ page|add:1 }}</a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </nav>

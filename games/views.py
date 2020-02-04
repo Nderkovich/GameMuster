@@ -26,6 +26,7 @@ def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
                                                'list_search_form': list_search_form,
                                                'name_search_form': name_search_form,
                                                'params': "",
+                                               'page_obj': paginator.get_page(page),
                                                'url_path': "/"})
 
 
@@ -45,13 +46,15 @@ class SearchView(View):
         list_search_form = SearchListForm()
         name_search_form = SearchNameForm()
         params = self._get_params(request.GET)
-        game_list = self._get_game_list(params, page)
+        page_obj = self._get_game_list(params, page)
+        game_list = page_obj.object_list
         url_params = request.GET.urlencode()
         return render(request, 'Games/list.html', {'game_list': game_list,
                                                    'page': page,
                                                    'list_search_form': list_search_form,
                                                    'name_search_form': name_search_form,
                                                    'params': url_params,
+                                                   'page_obj': page_obj,
                                                    'url_path': '/search/'})
 
     def post(self, request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -69,11 +72,11 @@ class SearchView(View):
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
 
-    def _get_game_list(self, params: dict, page: int) -> list:
+    def _get_game_list(self, params: dict, page: int) -> Paginator:
         if params.get('name'):
             games = Game.objects.filter(game_name__contains=params['name']).all()
             paginator = Paginator(games, settings.GAME_LIST_LIMIT)
-            return paginator.get_page(page).object_list
+            return paginator.get_page(page)
         else:
             games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
                                         user_rating__lte=int(params['rating_upper_limit'])).all()
@@ -82,7 +85,7 @@ class SearchView(View):
             if params['genres']:
                 games = games.filter(genres__genre_name__in=params['genres']).all()
             paginator = Paginator(games, settings.GAME_LIST_LIMIT)
-            return paginator.get_page(page).object_list
+            return paginator.get_page(page)
 
 
 @login_required
