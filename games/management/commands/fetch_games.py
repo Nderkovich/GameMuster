@@ -2,8 +2,8 @@ from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from game_app.igdb_api import IGDBClient
-from game_app.models import Game, Genre, Screenshot, Keyword, Platform
+from games.igdb_api import IGDBClient
+from games.models import Game, Genre, Screenshot, Keyword, Platform
 
 
 class Command(BaseCommand):

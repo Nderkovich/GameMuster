@@ -6,10 +6,10 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
 
-from profiles_app.forms import SignInForm, SignUpForm
-from profiles_app.models import Profile
-from game_app.models import Game
-from profiles_app.services import send_activation_email, create_confirm_token, check_token, get_user_favorite_games
+from profiles.forms import SignInForm, SignUpForm
+from profiles.models import Profile
+from games.models import Game
+from profiles.services import send_activation_email, create_confirm_token, check_token, get_user_favorite_games
 
 
 def sign_in(request):

@@ -3,9 +3,9 @@ from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 from django.conf import settings
 
-from profiles_app.models import Profile
-from profiles_app.tokens import TokenGenerator
-from game_app.igdb_api import IGDBClient
+from profiles.models import Profile
+from profiles.tokens import TokenGenerator
+from games.igdb_api import IGDBClient
 
 
 def create_confirm_token(user):

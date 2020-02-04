@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('screen_thumb_url', models.URLField()),
                 ('screen_big_url', models.URLField()),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='screenshots', to='game_app.Game')),
+                ('game', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='screenshots', to='games.Game')),
             ],
         ),
         migrations.CreateModel(
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('platform_id', models.IntegerField()),
                 ('platfrom_name', models.CharField(max_length=100)),
                 ('platfrom_abbreviation', models.CharField(max_length=20, null=True)),
-                ('game', models.ManyToManyField(related_name='platforms', to='game_app.Game')),
+                ('game', models.ManyToManyField(related_name='platforms', to='games.Game')),
             ],
         ),
         migrations.CreateModel(
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('keyword_id', models.IntegerField()),
                 ('Keyword_name', models.CharField(max_length=100)),
-                ('game', models.ManyToManyField(related_name='keywords', to='game_app.Game')),
+                ('game', models.ManyToManyField(related_name='keywords', to='games.Game')),
             ],
         ),
         migrations.CreateModel(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('genre_id', models.IntegerField()),
                 ('genre_name', models.CharField(max_length=100)),
-                ('game', models.ManyToManyField(related_name='genres', to='game_app.Game')),
+                ('game', models.ManyToManyField(related_name='genres', to='games.Game')),
             ],
         ),
     ]

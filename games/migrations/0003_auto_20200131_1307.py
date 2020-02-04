@@ -7,13 +7,13 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('game_app', '0002_game_user_profiles'),
+        ('games', '0002_game_user_profiles'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='screenshot',
             name='game',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='screenshots', to='game_app.Game'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='screenshots', to='games.Game'),
         ),
     ]

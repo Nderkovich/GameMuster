@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'game_app.apps.GameAppConfig',
-    'profiles_app.apps.ProfilesAppConfig'
+    'games.apps.GameAppConfig',
+    'profiles.apps.ProfilesAppConfig'
 ]
 
 MIDDLEWARE = [
@@ -137,7 +137,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'game_app/static/'),
+    os.path.join(BASE_DIR, 'games/static/'),
 ]
 
 
@@ -152,7 +152,7 @@ TWITTER_API_URL = get_env_value('TWITTER_API_URL')
 GAME_LIST_LIMIT = 9
 
 
-AUTH_USER_MODEL = 'profiles_app.Profile'
+AUTH_USER_MODEL = 'profiles.Profile'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

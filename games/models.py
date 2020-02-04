@@ -1,6 +1,6 @@
 from django.db import models
 
-from profiles_app.models import Profile
+from profiles.models import Profile
 
 
 class Game(models.Model):
