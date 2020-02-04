@@ -97,7 +97,8 @@ class Game:
 class IGDBClient:
 
     def __init__(self, user_key: str, api_url: str):
-        self.headers = {'user-key': user_key}
+        self.headers = {'user-key': user_key,
+                        'User-Agent': 'PostmanRuntime/7.20.1'}
         self.api_url = api_url
 
     def _get_data(self, url, headers, body):
