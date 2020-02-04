@@ -33,7 +33,7 @@ def get_env_value(env_var):
 SECRET_KEY = '#ogmy9^eb48wr03w0uo6*c^#osa9f&itxcyegc)obzqffel(p%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_env_value('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'games.apps.GameAppConfig',
-    'profiles.apps.ProfilesAppConfig'
+    'games.apps.GamesConfig',
+    'profiles.apps.ProfilesConfig'
 ]
 
 MIDDLEWARE = [
@@ -90,10 +90,10 @@ DATABASES = {
     'default': {
         'ENGINE': get_env_value('DB_ENGINE'),
         'NAME': get_env_value('DB_NAME'),
-        'USER' : get_env_value('DB_USER'),
-        'PASSWORD' : get_env_value('DB_PASSWORD'),
-        'HOST' : get_env_value('DB_HOST'),
-        'PORT' : get_env_value('DB_PORT'),
+        'USER': get_env_value('DB_USER'),
+        'PASSWORD': get_env_value('DB_PASSWORD'),
+        'HOST': get_env_value('DB_HOST'),
+        'PORT': get_env_value('DB_PORT'),
     }
 }
 

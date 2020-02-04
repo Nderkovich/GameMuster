@@ -1,3 +1,8 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
+from django.conf import settings
+from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
@@ -82,3 +87,29 @@ class SearchView(View):
                 games = games.filter(genres__genre_name__in=params['genres']).all()
             paginator = Paginator(games, settings.GAME_LIST_LIMIT)
             return paginator.get_page(page).object_list
+
+
+@login_required
+def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        game = Game(game_id=game_id)
+        game.save()
+    game.user_profiles.add(request.user)
+    game.save()
+    return redirect('games:game_info', game_id)
+
+
+@login_required
+def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpResponse:
+    try:
+        game = Game.objects.get(game_id=game_id)
+    except Game.DoesNotExist:
+        return HttpResponseNotFound()
+    if request.user.is_in_favorite(game_id):
+        game.user_profiles.remove(request.user)
+        game.save()
+        return redirect('games:game_info', game_id)
+    else:
+        return HttpResponseBadRequest()

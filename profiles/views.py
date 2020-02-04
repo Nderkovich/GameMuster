@@ -3,16 +3,18 @@ from django.contrib.auth import login, authenticate
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
+from django.views.generic import View
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from profiles.forms import SignInForm, SignUpForm
 from profiles.models import Profile
-from games.models import Game
-from profiles.services import send_activation_email, create_confirm_token, check_token, get_user_favorite_games
+from profiles.services import send_activation_email, create_confirm_token, check_token
+from games.services import get_user_favorite_games
 
 
-def sign_in(request):
+def sign_in(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = SignInForm(request.POST)
         if form.is_valid():
@@ -22,68 +24,45 @@ def sign_in(request):
             if user is not None:
                 login(request, user)
                 return redirect('games:main_page')
+            else:
+                messages.warning(request, 'Invalid username or password')
+        else:
+            messages.warning(request, 'Invalid form data')
     form = SignInForm()
     return render(request, 'Profiles/sign_in.html', {'form': form})
 
 
-def sign_up(request):
-    if request.method == 'POST':
+class SignUpView(View):
+    def get(self, request):
+        form = SignUpForm()
+        return render(request, 'Profiles/sign_up.html', {'form': form})
+
+    def post(self, request: HttpRequest) -> HttpResponse:
         form = SignUpForm(request.POST)
         if form.is_valid():
             form = form.cleaned_data
             if form['password'] == form['confirm_password']:
-                user = Profile.objects.create_user(username=form['username'], password=form['password'], email=form['email'],
+                user = Profile.objects.create_user(username=form['username'], password=form['password'],
+                                                   email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
-                if user:
-                    user.is_active = False
-                    user.save()
-                    send_activation_email(user, create_confirm_token(user),
-                                          get_current_site(request))
-                    return redirect('user_profile:sign_in')
-    form = SignUpForm()
-    return render(request, 'Profiles/sign_up.html', {'form': form})
+                user.deactivate()
+                send_activation_email(user, create_confirm_token(user),
+                                      get_current_site(request))
+                return redirect('user_profile:sign_in')
+            else:
+                messages.warning(request, 'Invalid form data')
+                return redirect('user_profile:sign_up')
 
 
-def profile_view(request, id: int):
-    profile = get_object_or_404(Profile, id=id)
+def profile_view(request: HttpRequest, profile_id: int) -> HttpResponse:
+    profile = get_object_or_404(Profile, id=profile_id)
     user_favorites = get_user_favorite_games(profile)
     return render(request, 'Profiles/profile.html', {'profile': profile,
-                                                  'user_favorites': user_favorites})
+                                                     'user_favorites': user_favorites})
 
 
-def activation_view(request, uidb64, token):
+def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
     uid = force_text(urlsafe_base64_decode(uidb64))
     user = get_object_or_404(Profile, id=uid)
-    if user is not None and check_token(user, token):
-        user.is_active = True
-        user.save()
-        return redirect('user_profile:sign_in')
-
-
-@login_required
-def add_to_favorites_view(request, game_id):
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = Game(game_id=game_id)
-        game.save()
-    game.user_profiles.add(request.user)
-    game.save()
-    return redirect('games:game_info', game_id)
-
-
-@login_required
-def remove_from_favorites_view(request, game_id):
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = None
-    if game:
-        if request.user.is_in_favorite(game_id):
-            game.user_profiles.remove(request.user)
-            game.save()
-            return redirect('games:game_info', game_id)
-        else:
-            return HttpResponseBadRequest()
-    else:
-        return HttpResponseNotFound()
+    user.activate()
+    return redirect('user_profile:sign_in')

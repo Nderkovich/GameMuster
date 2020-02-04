@@ -17,7 +17,7 @@ def create_confirm_token(user):
 def send_activation_email(user, token, current_site):
     mail_subject = 'Activate your account.'
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    activation_link = f'{current_site}/activate/uid={uid}/token={token}/'
+    activation_link = f'{current_site}/profile/activate/uid={uid}/token={token}/'
     message = f'Hello {user.first_name} {user.last_name},\n {activation_link}'
     email = EmailMessage(mail_subject, message, to=[user.email])
     email.send()
@@ -26,14 +26,3 @@ def send_activation_email(user, token, current_site):
 def check_token(user, token):
     token_generator = TokenGenerator()
     return token_generator.check_token(user, token)
-
-
-def get_user_favorite_games(user):
-    api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    ids = []
-    for g in user.favorite_games.all():
-        ids.append(g.game_id)
-    if ids:
-        return api_client.get_games_by_ids(ids)
-    else:
-        return None

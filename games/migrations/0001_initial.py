@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('game_id', models.IntegerField()),
+<<<<<<< .merge_file_gfY98t
                 ('game_name', models.CharField(max_length=200)),
                 ('cover_url', models.URLField(null=True)),
                 ('user_rating', models.IntegerField(null=True)),
@@ -62,6 +63,8 @@ class Migration(migrations.Migration):
                 ('genre_id', models.IntegerField()),
                 ('genre_name', models.CharField(max_length=100)),
                 ('game', models.ManyToManyField(related_name='genres', to='games.Game')),
+=======
+>>>>>>> .merge_file_88Op1t
             ],
         ),
     ]

@@ -8,6 +8,13 @@ Sign in
 
 {% block content %}
  <div class="mx-auto" style="width: 40rem;margin-top: 10%">
+     {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+                  {{ message }}
+            </div>
+        {% endfor %}
+     {% endif %}
     <form action="." method="POST">
         {% csrf_token %}
         <div class="form-group">
