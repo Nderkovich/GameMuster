@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def get_games(self, offset=0, limit=500):
         call_group = []
-        while offset < 1000:
+        while offset < 5000:
             call_group.append(game_getter_task.s(offset, limit))
             offset += 500
         lazy_group = group(call_group)
