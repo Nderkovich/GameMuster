@@ -9,13 +9,17 @@ from games.models import Game, Genre, Screenshot, Keyword, Platform
 class Command(BaseCommand):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
 
+    def add_arguments(self, parser):
+        parser.add_argument('offset', type=int, help="Game offset")
+        parser.add_argument('limit', type=int, help="Number of games to get")
+
     def get_games(self, offset=0, limit=9):
         game_list = self.api_client.get_game_list_full_data(offset, limit)
         for game in game_list:
             self.create_game(game)
 
     def handle(self, *args, **options):
-        self.get_games()
+        self.get_games(options['offset'], options['limit'])
 
     def create_game(self, data):
         if not Game.objects.filter(game_id=data['id']).exists():
