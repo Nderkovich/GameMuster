@@ -3,10 +3,9 @@ from django.contrib.auth import login, authenticate
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
-from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 
 from profiles.forms import SignInForm, SignUpForm
 from profiles.models import Profile

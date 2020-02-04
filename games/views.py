@@ -1,8 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
-from django.conf import settings
-from django.views import View
+from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
@@ -73,7 +70,6 @@ class SearchView(View):
         return params
 
     def _get_game_list(self, params: dict, page: int) -> list:
-        offset = (page - 1) * settings.GAME_LIST_LIMIT
         if params.get('name'):
             games = Game.objects.filter(game_name__contains=params['name']).all()
             paginator = Paginator(games, settings.GAME_LIST_LIMIT)
