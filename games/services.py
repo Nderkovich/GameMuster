@@ -16,68 +16,53 @@ def get_user_favorite_games(user):
 
 class GameFetcher():
     def create_game(self, data):
-        if not Game.objects.filter(game_id=data['id']).exists():
-            game = Game(game_id=data['id'])
-            game.game_name = data.get('name')
-            if data.get('cover'):
-                game.cover_url = data['cover']['url'].replace('thumb', 'cover_big')
-            game.game_description = data.get('summary')
-            game.user_rating = int(data.get('rating', 0))
-            game.user_rating_count = data.get('rating_count', 0)
-            game.critic_rating = int(data.get('aggregated_rating', 0))
-            game.critic_rating_count = data.get('aggregated_rating_count', 0)
-            if data.get('first_release_date'):
-                game.game_release_date = datetime.utcfromtimestamp(data['first_release_date'])
-            game.save()
-            if data.get('keywords'):
-                for keyword in data['keywords']:
-                    game.keywords.add(self._get_keyword(keyword))
-            if data.get('genres'):
-                for genre in data['genres']:
-                    game.genres.add(self._get_genre(genre))
-            if data.get('platforms'):
-                for platform in data['platforms']:
-                    game.platforms.add(self._get_platform(platform))
-            if data.get('screenshots'):
-                for screen in data['screenshots']:
-                    game.screenshots.add(self._get_screenshot(screen))
-            game.save()
+        game, created = Game.objects.update_or_create(
+            game_id=data['id'],
+            game_name=data.get('name'),
+            game_description=data.get('summary'),
+            user_rating=int(data.get('rating', 0)),
+            user_rating_count=data.get('rating_count', 0),
+            critic_rating=int(data.get('aggregated_rating', 0)),
+            critic_rating_count=data.get('aggregated_rating_count', 0),
+        )
+        if data.get('cover'):
+            game.cover_url = data['cover']['url'].replace('thumb', 'cover_big')
+        if data.get('first_release_date'):
+            game.game_release_date = datetime.utcfromtimestamp(data['first_release_date'])
+        if data.get('keywords'):
+            for keyword in data['keywords']:
+                game.keywords.add(self._get_keyword(keyword))
+        if data.get('genres'):
+            for genre in data['genres']:
+                game.genres.add(self._get_genre(genre))
+        if data.get('platforms'):
+            for platform in data['platforms']:
+                game.platforms.add(self._get_platform(platform))
+        if data.get('screenshots'):
+            for screen in data['screenshots']:
+                game.screenshots.add(self._get_screenshot(screen))
+        game.save()
 
     def _get_keyword(self, key_data: dict) -> Keyword:
-        if not Keyword.objects.filter(keyword_id=key_data['id']).exists():
-            return self._create_keyword(key_data)
-        else:
-            return Keyword.objects.get(keyword_id=key_data['id'])
-
-    def _create_keyword(self, key_data: dict) -> Keyword:
-        keyword = Keyword(keyword_id=key_data['id'])
-        keyword.Keyword_name = key_data['name']
-        keyword.save()
+        keyword, created = Keyword.objects.update_or_create(
+            keyword_id=key_data['id'],
+            keyword_name=key_data['name'],
+        )
         return keyword
 
     def _get_genre(self, genre_data: dict) -> Genre:
-        if not Genre.objects.filter(genre_id=genre_data['id']).exists():
-            return self._create_genre(genre_data)
-        else:
-            return Genre.objects.get(genre_id=genre_data['id'])
-
-    def _create_genre(self, genre_data: dict) -> Genre:
-        genre = Genre(genre_id=genre_data['id'])
-        genre.genre_name = genre_data['name']
-        genre.save()
+        genre, created = Genre.objects.update_or_create(
+            genre_id=genre_data['id'],
+            genre_name=genre_data['name'],
+        )
         return genre
 
     def _get_platform(self, platform_data: dict) -> Platform:
-        if not Platform.objects.filter(platform_id=platform_data['id']).exists():
-            return self._create_platform(platform_data)
-        else:
-            return Platform.objects.get(platform_id=platform_data['id'])
-
-    def _create_platform(self, platform_data: dict) -> Platform:
-        platform = Platform(platform_id=platform_data['id'])
-        platform.platform_name = platform_data.get('name')
-        platform.platform_abbreviation = platform_data.get('abbreviation')
-        platform.save()
+        platform, created = Platform.objects.update_or_create(
+            platform_id=platform_data['id'],
+            platform_name=platform_data.get('name'),
+            platform_abbreviation=platform_data.get('abbreviation'),
+        )
         return platform
 
     def _get_screenshot(self, screenshot_data) -> Screenshot:

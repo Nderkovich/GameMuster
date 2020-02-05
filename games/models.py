@@ -4,7 +4,7 @@ from profiles.models import Profile
 
 
 class Game(models.Model):
-    game_id = models.IntegerField()
+    game_id = models.IntegerField(unique=True)
     game_name = models.CharField(max_length=200)
     cover_url = models.URLField(null=True)
     user_rating = models.IntegerField(null=True)
@@ -17,19 +17,19 @@ class Game(models.Model):
 
 
 class Keyword(models.Model):
-    keyword_id = models.IntegerField()
+    keyword_id = models.IntegerField(unique=True)
     keyword_name = models.CharField(max_length=100)
     game = models.ManyToManyField(Game, related_name='keywords')
 
 
 class Genre(models.Model):
-    genre_id = models.IntegerField()
+    genre_id = models.IntegerField(unique=True)
     genre_name = models.CharField(max_length=100)
     game = models.ManyToManyField(Game, related_name='genres')
 
 
 class Platform(models.Model):
-    platform_id = models.IntegerField()
+    platform_id = models.IntegerField(unique=True)
     platform_name = models.CharField(max_length=100)
     platform_abbreviation = models.CharField(max_length=20, null=True)
     game = models.ManyToManyField(Game, related_name='platforms')
