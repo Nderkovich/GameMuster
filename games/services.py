@@ -66,14 +66,9 @@ class GameFetcher():
         return platform
 
     def _get_screenshot(self, screenshot_data) -> Screenshot:
-        if not Screenshot.objects.filter(screen_thumb_url=screenshot_data['url']).exists():
-            return self._create_screenshot(screenshot_data)
-        else:
-            return Screenshot.objects.get(screen_thumb_url=screenshot_data['url'])
-
-    def _create_screenshot(self, screenshot_data: dict) -> Screenshot:
-        screen = Screenshot(screen_thumb_url=screenshot_data['url'])
-        screen.screen_big_url = screen.screen_thumb_url.replace(
-            't_thumb', 't_screenshot_big')
-        screen.save()
-        return screen
+        screenshot, created = Screenshot.objects.update_or_create(
+            screen_thumb_url=screenshot_data['url'],
+            screen_big_url=screenshot_data['url'].replace(
+                't_thumb', 't_screenshot_big')
+        )
+        return screenshot
