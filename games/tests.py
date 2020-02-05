@@ -1,3 +1,38 @@
-from django.test import TestCase
+from django.test import Client, TestCase, RequestFactory
+from games.models import Game
+from games.views import remove_from_favorites_view
+from profiles.models import Profile
+
 
 # Create your tests here.
+class MyTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.client = Client()
+        self.userr = Profile.objects.create(
+            username="user_test",
+            password="12345Da",
+            email="email@adasdasfsdf.ru",
+            first_name="Name",
+            last_name="Name"
+        )
+
+    def test_game_not_exist(self):
+        response = self.client.get('/game/1/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_game_exist(self):
+        game = Game.objects.create(game_id=1)
+        response = self.client.get('/game/1/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_search_game(self):
+        response = self.client.post('/', {'name': 'game_name'})
+        self.assertEqual(response.status_code, 302)
+
+    def test_game_not_favorite(self):
+        game = Game.objects.create(game_id=1)
+        request = self.factory.get('/remove_from_favorite/1/')
+        request.user = self.userr
+        response = remove_from_favorites_view(request, 1)
+        self.assertEqual(response.status_code, 400)
