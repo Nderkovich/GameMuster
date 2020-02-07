@@ -15,7 +15,7 @@ def get_user_favorite_games(user):
         return None
 
 
-class GameFetcher():
+class GameCreator:
     @transaction.atomic
     def create_game(self, data):
         game, created = Game.objects.update_or_create(
