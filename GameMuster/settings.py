@@ -30,7 +30,7 @@ def get_env_value(env_var):
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#ogmy9^eb48wr03w0uo6*c^#osa9f&itxcyegc)obzqffel(p%'
+SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_env_value('DEBUG')
