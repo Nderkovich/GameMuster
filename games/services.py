@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import transaction
 from datetime import datetime
 
 from games.igdb_api import IGDBClient
@@ -15,6 +16,7 @@ def get_user_favorite_games(user):
 
 
 class GameFetcher():
+    @transaction.atomic
     def create_game(self, data):
         game, created = Game.objects.update_or_create(
             game_id=data['id'],
@@ -43,6 +45,7 @@ class GameFetcher():
                 game.screenshots.add(self._get_screenshot(screen))
         game.save()
 
+    @transaction.atomic
     def _get_keyword(self, key_data: dict) -> Keyword:
         keyword, created = Keyword.objects.update_or_create(
             keyword_id=key_data['id'],
@@ -50,6 +53,7 @@ class GameFetcher():
         )
         return keyword
 
+    @transaction.atomic
     def _get_genre(self, genre_data: dict) -> Genre:
         genre, created = Genre.objects.update_or_create(
             genre_id=genre_data['id'],
@@ -57,6 +61,7 @@ class GameFetcher():
         )
         return genre
 
+    @transaction.atomic
     def _get_platform(self, platform_data: dict) -> Platform:
         platform, created = Platform.objects.update_or_create(
             platform_id=platform_data['id'],
@@ -65,6 +70,7 @@ class GameFetcher():
         )
         return platform
 
+    @transaction.atomic
     def _get_screenshot(self, screenshot_data) -> Screenshot:
         screenshot, created = Screenshot.objects.update_or_create(
             screen_thumb_url=screenshot_data['url'],

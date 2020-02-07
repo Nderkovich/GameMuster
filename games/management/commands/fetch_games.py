@@ -19,7 +19,7 @@ class Command(BaseCommand):
             call_group.append(game_getter_task.s(offset, limit))
             offset += 500
         lazy_group = group(call_group)
-        lazy_group()
+        lazy_group.apply_async()
 
     def handle(self, *args, **options):
         self.get_games(options['offset'], options['limit'])
