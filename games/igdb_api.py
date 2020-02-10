@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.conf import settings
+from urllib.parse import urljoin
 from typing import List, Dict, Optional
 
 import requests
@@ -115,12 +115,12 @@ class IGDBClient:
         return response.json()
 
     def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         body = f"fields {comma_query(needed_info)};  where id = {id};"
         return self._get_data(url, self.headers, body)
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
 
@@ -138,24 +138,24 @@ class IGDBClient:
 
     def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
                              genres: Optional[List[str]] = None, offset=OFFSET, limit=LIMIT) -> dict:
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
         return self._get_data(url, self.headers, body)
 
     def _search_games_name(self, name, offset=OFFSET, limit=LIMIT) -> dict:
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
 
     def _get_games_data_by_ids(self, ids):
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({comma_query(ids)});'
         return self._get_data(url, self.headers, body)
 
     def _get_full_games_data(self, offset=OFFSET, limit=LIMIT):
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         fields = ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
                   'genres.name', 'keywords.name', 'name', 'platforms.name',
                   'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
