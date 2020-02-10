@@ -12,7 +12,6 @@ def comma_query(items: List[str]) -> str:
     return str(items)[1:-1]
 
 
-
 class ApiException(Exception):
     def __init__(self, error_code):
         self.message = f'Error code {error_code}'

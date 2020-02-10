@@ -5,6 +5,10 @@ from celery import group
 from games.igdb_api import IGDBClient
 from games.tasks import game_getter_task
 
+MAX_OFFSET = 5000
+START_OFFSET = 0
+MAX_LIMIT = 500
+
 
 class Command(BaseCommand):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
@@ -13,11 +17,11 @@ class Command(BaseCommand):
         parser.add_argument('offset', type=int, help="Game offset")
         parser.add_argument('limit', type=int, help="Number of games to get")
 
-    def get_games(self, offset=0, limit=500):
+    def get_games(self, offset=START_OFFSET, limit=MAX_LIMIT):
         call_group = []
-        while offset < 5000:
+        while offset < MAX_OFFSET:
             call_group.append(game_getter_task.s(offset, limit))
-            offset += 500
+            offset += limit
         lazy_group = group(call_group)
         lazy_group.apply_async()
 
