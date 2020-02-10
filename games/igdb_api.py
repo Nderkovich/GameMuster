@@ -4,6 +4,9 @@ from typing import List, Dict, Optional
 
 import requests
 
+OFFSET = 0
+LIMIT = 9
+
 
 class ApiException(Exception):
     def __init__(self, error_code):
@@ -130,14 +133,14 @@ class IGDBClient:
         return query
 
     def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
-                             genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
+                             genres: Optional[List[str]] = None, offset=OFFSET, limit=LIMIT) -> dict:
         url = self.api_url + 'games'
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
         return self._get_data(url, self.headers, body)
 
-    def _search_games_name(self, name, offset=0, limit=9) -> dict:
+    def _search_games_name(self, name, offset=OFFSET, limit=LIMIT) -> dict:
         url = self.api_url + 'games'
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
@@ -146,29 +149,30 @@ class IGDBClient:
         url = self.api_url + 'games'
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({str(ids)[1:-1]});'
         return self._get_data(url, self.headers, body)
-        
-    def _get_full_games_data(self, offset=0, limit = 9):
+
+    def _get_full_games_data(self, offset=OFFSET, limit=LIMIT):
         url = self.api_url + 'games'
         fields = ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
-                                              'genres.name', 'keywords.name', 'name', 'platforms.name',
-                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
-                                              'screenshots.url']
+                  'genres.name', 'keywords.name', 'name', 'platforms.name',
+                  'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                  'screenshots.url']
         body = f"fields {str(fields)[1:-1]};limit {limit};offset {offset};"
         return self._get_data(url, self.headers, body)
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
                                               'genres.name', 'keywords.name', 'name', 'platforms.name',
-                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url',
+                                              'summary',
                                               'screenshots.url'])[0]
         return Game(id, data)
 
-    def get_game_list(self, offset=0, limit=9) -> List[Game]:
+    def get_game_list(self, offset=OFFSET, limit=LIMIT) -> List[Game]:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
     def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
-                          genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
+                          genres: Optional[List[str]] = None, offset: int = 0, limit: int = 9) -> List[Game]:
         data = self._search_games_params(
             lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
@@ -181,6 +185,6 @@ class IGDBClient:
         data = self._get_games_data_by_ids(ids)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def get_game_list_full_data(self, offset=0, limit=9):
+    def get_game_list_full_data(self, offset=OFFSET, limit=LIMIT):
         data = self._get_full_games_data(offset, limit)
         return data
