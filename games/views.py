@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.core.paginator import Paginator
 
 from games.forms import SearchListForm, SearchNameForm
@@ -29,13 +30,19 @@ class GameListView(ListView):
         return context
 
 
-def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
-    game = get_object_or_404(Game, game_id=game_id)
-    twitter_api_client = TwitterApi(
-        settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
-    tweets = twitter_api_client.search_tweets(f'"{game.game_name}"')
-    return render(request, 'Games/game.html', {'game': game,
-                                               'tweets': tweets})
+class GameInfoView(DetailView):
+    model = Game
+    template_name = "Games/game.html"
+
+    def get_object(self, **kwargs):
+        return get_object_or_404(Game, game_id=self.kwargs['game_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        twitter_api_client = TwitterApi(
+            settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
+        context['tweets'] = twitter_api_client.search_tweets(f'"{self.object.game_name}"')
+        return context
 
 
 class SearchView(View):
