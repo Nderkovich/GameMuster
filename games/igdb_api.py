@@ -8,6 +8,11 @@ OFFSET = 0
 LIMIT = 9
 
 
+def comma_query(items: List[str]) -> str:
+    return str(items)[1:-1]
+
+
+
 class ApiException(Exception):
     def __init__(self, error_code):
         self.message = f'Error code {error_code}'
@@ -112,7 +117,7 @@ class IGDBClient:
 
     def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
         url = self.api_url + 'games'
-        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
+        body = f"fields {comma_query(needed_info)};  where id = {id};"
         return self._get_data(url, self.headers, body)
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
@@ -124,10 +129,10 @@ class IGDBClient:
                             genres: Optional[List[str]] = None) -> str:
         query = f'where rating>{lower_limit} & rating<{upper_limit} '
         if platforms:
-            str_platforms = (str(platforms)[1:-1]).replace("'", '"')
+            str_platforms = (comma_query(platforms)).replace("'", '"')
             query += f'& platforms.abbreviation=({str_platforms}) '
         if genres:
-            str_genres = (str(genres)[1:-1]).replace("'", '"')
+            str_genres = (comma_query(genres)).replace("'", '"')
             query += f'& genres.name=({str_genres})'
         query += ';'
         return query
@@ -147,7 +152,7 @@ class IGDBClient:
 
     def _get_games_data_by_ids(self, ids):
         url = self.api_url + 'games'
-        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({str(ids)[1:-1]});'
+        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({comma_query(ids)});'
         return self._get_data(url, self.headers, body)
 
     def _get_full_games_data(self, offset=OFFSET, limit=LIMIT):
@@ -156,7 +161,7 @@ class IGDBClient:
                   'genres.name', 'keywords.name', 'name', 'platforms.name',
                   'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
                   'screenshots.url']
-        body = f"fields {str(fields)[1:-1]};limit {limit};offset {offset};"
+        body = f"fields {comma_query(fields)};limit {limit};offset {offset};"
         return self._get_data(url, self.headers, body)
 
     def get_game_by_id(self, id: int) -> Game:
