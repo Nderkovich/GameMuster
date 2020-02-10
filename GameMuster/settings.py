@@ -101,8 +101,7 @@ DATABASES = {
         'USER': get_env_value('DB_USER'),
         'PASSWORD': get_env_value('DB_PASSWORD'),
         'HOST': get_env_value('DB_HOST'),
-        'PORT': get_env_value('DB_PORT'),
-        'ATOMIC_REQUEST': True,
+        'PORT': get_env_value('DB_PORT')
     }
 }
 
