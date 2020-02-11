@@ -101,7 +101,10 @@ DATABASES = {
         'USER': get_env_value('DB_USER'),
         'PASSWORD': get_env_value('DB_PASSWORD'),
         'HOST': get_env_value('DB_HOST'),
-        'PORT': get_env_value('DB_PORT')
+        'PORT': get_env_value('DB_PORT'),
+        'OPTIONS': {
+            'sslmode': 'require'
+        },
     }
 }
 
