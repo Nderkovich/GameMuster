@@ -4,7 +4,7 @@ from typing import List, Dict, Optional
 
 import requests
 
-OFFSET = 0
+DEFAULT_OFFSET = 0
 LIMIT = 9
 
 
@@ -137,14 +137,14 @@ class IGDBClient:
         return query
 
     def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
-                             genres: Optional[List[str]] = None, offset=OFFSET, limit=LIMIT) -> dict:
+                             genres: Optional[List[str]] = None, offset=DEFAULT_OFFSET, limit=LIMIT) -> dict:
         url = urljoin(self.api_url, 'games')
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
         return self._get_data(url, self.headers, body)
 
-    def _search_games_name(self, name, offset=OFFSET, limit=LIMIT) -> dict:
+    def _search_games_name(self, name, offset=DEFAULT_OFFSET, limit=LIMIT) -> dict:
         url = urljoin(self.api_url, 'games')
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
@@ -154,7 +154,7 @@ class IGDBClient:
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({comma_query(ids)});'
         return self._get_data(url, self.headers, body)
 
-    def _get_full_games_data(self, offset=OFFSET, limit=LIMIT):
+    def _get_full_games_data(self, offset=DEFAULT_OFFSET, limit=LIMIT):
         url = urljoin(self.api_url, 'games')
         fields = ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
                   'genres.name', 'keywords.name', 'name', 'platforms.name',
@@ -171,7 +171,7 @@ class IGDBClient:
                                               'screenshots.url'])[0]
         return Game(id, data)
 
-    def get_game_list(self, offset=OFFSET, limit=LIMIT) -> List[Game]:
+    def get_game_list(self, offset=DEFAULT_OFFSET, limit=LIMIT) -> List[Game]:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
@@ -189,6 +189,6 @@ class IGDBClient:
         data = self._get_games_data_by_ids(ids)
         return [Game(game_data['id'], game_data) for game_data in data]
 
-    def get_game_list_full_data(self, offset=OFFSET, limit=LIMIT):
+    def get_game_list_full_data(self, offset=DEFAULT_OFFSET, limit=LIMIT):
         data = self._get_full_games_data(offset, limit)
         return data
