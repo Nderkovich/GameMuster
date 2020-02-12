@@ -1,8 +1,15 @@
 from datetime import datetime
-from django.conf import settings
+from urllib.parse import urljoin
 from typing import List, Dict, Optional
 
 import requests
+
+DEFAULT_OFFSET = 0
+LIMIT = 9
+
+
+def comma_query(items: List[str]) -> str:
+    return str(items)[1:-1]
 
 
 class ApiException(Exception):
@@ -97,7 +104,8 @@ class Game:
 class IGDBClient:
 
     def __init__(self, user_key: str, api_url: str):
-        self.headers = {'user-key': user_key}
+        self.headers = {'user-key': user_key,
+                        'User-Agent': 'PostmanRuntime/7.20.1'}
         self.api_url = api_url
 
     def _get_data(self, url, headers, body):
@@ -107,12 +115,12 @@ class IGDBClient:
         return response.json()
 
     def _get_game_data_by_id(self, id: int, needed_info: List[str]) -> dict:
-        url = self.api_url + 'games'
-        body = f"fields {str(needed_info)[1:-1]};  where id = {id};"
+        url = urljoin(self.api_url, 'games')
+        body = f"fields {comma_query(needed_info)};  where id = {id};"
         return self._get_data(url, self.headers, body)
 
     def _get_games_data(self, offset: int, limit: int) -> dict:
-        url = self.api_url + 'games'
+        url = urljoin(self.api_url, 'games')
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
 
@@ -120,46 +128,55 @@ class IGDBClient:
                             genres: Optional[List[str]] = None) -> str:
         query = f'where rating>{lower_limit} & rating<{upper_limit} '
         if platforms:
-            str_platforms = (str(platforms)[1:-1]).replace("'", '"')
+            str_platforms = (comma_query(platforms)).replace("'", '"')
             query += f'& platforms.abbreviation=({str_platforms}) '
         if genres:
-            str_genres = (str(genres)[1:-1]).replace("'", '"')
+            str_genres = (comma_query(genres)).replace("'", '"')
             query += f'& genres.name=({str_genres})'
         query += ';'
         return query
 
     def _search_games_params(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
-                             genres: Optional[List[str]] = None,  offset=0, limit=9) -> dict:
-        url = self.api_url + 'games'
+                             genres: Optional[List[str]] = None, offset=DEFAULT_OFFSET, limit=LIMIT) -> dict:
+        url = urljoin(self.api_url, 'games')
         query = self._build_search_query(
             lower_limit, upper_limit, platforms, genres)
         body = f'fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};{query}'
         return self._get_data(url, self.headers, body)
 
-    def _search_games_name(self, name, offset=0, limit=9) -> dict:
-        url = self.api_url + 'games'
+    def _search_games_name(self, name, offset=DEFAULT_OFFSET, limit=LIMIT) -> dict:
+        url = urljoin(self.api_url, 'games')
         body = f'search "{name}";fields name, genres.name, cover.url, first_release_date, keywords.name;limit {limit};offset {offset};'
         return self._get_data(url, self.headers, body)
 
     def _get_games_data_by_ids(self, ids):
-        url = self.api_url + 'games'
-        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({str(ids)[1:-1]});'
+        url = urljoin(self.api_url, 'games')
+        body = f'fields name, genres.name, cover.url, first_release_date, keywords.name; where id=({comma_query(ids)});'
         return self._get_data(url, self.headers, body)
-        
+
+    def _get_full_games_data(self, offset=DEFAULT_OFFSET, limit=LIMIT):
+        url = urljoin(self.api_url, 'games')
+        fields = ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
+                  'genres.name', 'keywords.name', 'name', 'platforms.name',
+                  'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                  'screenshots.url']
+        body = f"fields {comma_query(fields)};limit {limit};offset {offset};"
+        return self._get_data(url, self.headers, body)
 
     def get_game_by_id(self, id: int) -> Game:
         data = self._get_game_data_by_id(id, ['aggregated_rating', 'aggregated_rating_count', 'first_release_date',
                                               'genres.name', 'keywords.name', 'name', 'platforms.name',
-                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url', 'summary',
+                                              'platforms.abbreviation', 'rating', 'rating_count', 'cover.url',
+                                              'summary',
                                               'screenshots.url'])[0]
         return Game(id, data)
 
-    def get_game_list(self, offset=0, limit=9) -> List[Game]:
+    def get_game_list(self, offset=DEFAULT_OFFSET, limit=LIMIT) -> List[Game]:
         data = self._get_games_data(offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
 
     def search_games_list(self, lower_limit: int, upper_limit: int, platforms: Optional[List[str]] = None,
-                          genres: Optional[List[str]] = None,  offset: int = 0, limit: int = 9) -> List[Game]:
+                          genres: Optional[List[str]] = None, offset: int = 0, limit: int = 9) -> List[Game]:
         data = self._search_games_params(
             lower_limit, upper_limit, platforms, genres, offset, limit)
         return [Game(game_data['id'], game_data) for game_data in data]
@@ -171,3 +188,7 @@ class IGDBClient:
     def get_games_by_ids(self, ids):
         data = self._get_games_data_by_ids(ids)
         return [Game(game_data['id'], game_data) for game_data in data]
+
+    def get_game_list_full_data(self, offset=DEFAULT_OFFSET, limit=LIMIT):
+        data = self._get_full_games_data(offset, limit)
+        return data

@@ -9,7 +9,8 @@ from django.contrib import messages
 
 from profiles.forms import SignInForm, SignUpForm
 from profiles.models import Profile
-from profiles.services import send_activation_email, create_confirm_token, check_token
+from profiles.services import create_confirm_token
+from profiles.tasks import send_activation_email_task
 from games.services import get_user_favorite_games
 
 
@@ -45,8 +46,8 @@ class SignUpView(View):
                                                    email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
                 user.deactivate()
-                send_activation_email(user, create_confirm_token(user),
-                                      get_current_site(request))
+                send_activation_email_task.delay(user.id, create_confirm_token(user),
+                                                 str(get_current_site(request)))
                 return redirect('user_profile:sign_in')
             else:
                 messages.warning(request, 'Invalid form data')

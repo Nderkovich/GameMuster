@@ -11,9 +11,9 @@ Info
     
     <div class="col-7 top-buffer mx-3">
         <div class="row">
-            <h1>{{ game.name }}</h1>
+            <h1>{{ game.game_name }}</h1>
             {% if user.is_authenticated %}
-                {% is_favorite user game.id as in_fav %}
+                {% is_favorite user game.game_id as in_fav %}
                 {% if in_fav %}
                     <h1><a class="badge badge-danger mx-2" href="{% url 'games:remove_from_favorite' game.id %}">REMOVE</a></h1>
                 {% else %}
@@ -24,42 +24,42 @@ Info
         <div class="row"></div>
         <h2>Description</h2>
         <p class="text-break">
-            {% if game.summary %}
-                {{ game.summary }}
+            {% if game.game_description %}
+                {{ game.game_description }}
             {% else %}
                 No description yet
             {% endif %}
         </p>
         <h2>Release date</h2>
-        <p>{{ game.release_date }}</p>
+        <p>{{ game.game_release_date }}</p>
         <h2>Screenshots</h2>
         <div class="d-flex flex-wrap">
-            {% for screenshot in game.big_screenshots %}
-                <img class="game-screen" src="{{ screenshot }}" alt="{{ game.name }}" width="200px" height="200px">
+            {% for screenshot in game.screenshots.all %}
+                <img class="game-screen" src="{{ screenshot.screen_big_url }}" alt="{{ game.game_name }}" width="200px" height="200px">
             {% endfor %}
         </div>
     </div>
 
     <div class="col-2">
         <h2>Rating</h2>
-        <h2><span class="badge badge-success game-rate">Users {{ game.user_rating.rating }} ({{ game.user_rating.count }})</span></h2>
-        <h2><span class="badge badge-danger game-rate">Critics {{ game.critics_rating.rating }} ({{ game.critics_rating.count }})</span></h2>
+        <h2><span class="badge badge-success game-rate">Users {{ game.user_rating }} ({{ game.user_rating_count }})</span></h2>
+        <h2><span class="badge badge-danger game-rate">Critics {{ game.critic_rating }} ({{ game.critic_rating_count }})</span></h2>
         <h2>Genres</h2>
         <div class="row mx-1">
-            {% for genre in game.genres %}
-                <h2><span class="badge badge-danger mx-1">{{genre}}</span></h2>
+            {% for genre in game.genres.all %}
+                <h2><span class="badge badge-danger mx-1">{{genre.genre_name}}</span></h2>
             {% endfor %}
         </div>
         <h2>Platforms</h2>
         <div class="row mx-1">
-            {% for platform in game.platforms %}
-                <h2><span class="badge badge-danger mx-1">{{ platform }}</span></h2>
+            {% for platform in game.platforms.all %}
+                <h2><span class="badge badge-danger mx-1">{% if platform.abbreviation %}{{ platform.platform_abbreviation }}{% else %}{{ platform.platform_name }}{% endif %}</span></h2>
             {% endfor %}
         </div>
     </div>
 
     <div class="col">
-        <h1>#{{ game.name }} Tweets</h1>
+        <h1>#{{ game.game_name }} Tweets</h1>
         <div>
             {% for tweet in tweets %}
             <div class="card bg-danger text-white mb-2 tweet">

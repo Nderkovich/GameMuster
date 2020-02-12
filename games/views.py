@@ -1,8 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponseNotFound, HttpResponseBadRequest
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+from django.core.paginator import Paginator
 
 from games.forms import SearchListForm, SearchNameForm
 from games.igdb_api import IGDBClient
@@ -10,31 +14,35 @@ from games.twitter_api import TwitterApi
 from games.models import Game
 
 
-def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
-    api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    offset = (page - 1) * settings.GAME_LIST_LIMIT
-    list_search_form = SearchListForm()
-    name_search_form = SearchNameForm()
-    if request.method == 'POST':
-        url_params = request.POST.urlencode()
-        return redirect(f'/search/page/1/?{url_params}')
-    game_list = api_client.get_game_list(offset)
-    return render(request, 'Games/list.html', {'game_list': game_list,
-                                               'page': page,
-                                               'list_search_form': list_search_form,
-                                               'name_search_form': name_search_form,
-                                               'params': "",
-                                               'url_path': "/"})
+class GameListView(ListView):
+
+    model = Game
+    paginate_by = settings.GAME_LIST_LIMIT
+    template_name = "Games/list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        list_search_form = SearchListForm()
+        name_search_form = SearchNameForm()
+        context['list_search_form'] = list_search_form
+        context['name_search_form'] = name_search_form
+        context['params'] = ""
+        return context
 
 
-def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
-    igdb_api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
-    game = igdb_api_client.get_game_by_id(game_id)
-    twitter_api_client = TwitterApi(
-        settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
-    tweets = twitter_api_client.search_tweets(f'"{game.name}"')
-    return render(request, 'Games/game.html', {'game': game,
-                                               'tweets': tweets})
+class GameInfoView(DetailView):
+    model = Game
+    template_name = "Games/game.html"
+
+    def get_object(self, **kwargs):
+        return get_object_or_404(Game, game_id=self.kwargs['game_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        twitter_api_client = TwitterApi(
+            settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
+        context['tweets'] = twitter_api_client.search_tweets(f'"{self.object.game_name}"')
+        return context
 
 
 class SearchView(View):
@@ -44,13 +52,15 @@ class SearchView(View):
         list_search_form = SearchListForm()
         name_search_form = SearchNameForm()
         params = self._get_params(request.GET)
-        game_list = self._get_game_list(params, page)
+        page_obj = self._get_game_list(params, page)
+        game_list = page_obj.object_list
         url_params = request.GET.urlencode()
         return render(request, 'Games/list.html', {'game_list': game_list,
                                                    'page': page,
                                                    'list_search_form': list_search_form,
                                                    'name_search_form': name_search_form,
                                                    'params': url_params,
+                                                   'page_obj': page_obj,
                                                    'url_path': '/search/'})
 
     def post(self, request: HttpRequest, page: int = 1) -> HttpResponse:
@@ -68,13 +78,20 @@ class SearchView(View):
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
 
-    def _get_game_list(self, params: dict, page: int) -> list:
-        offset = (page - 1) * settings.GAME_LIST_LIMIT
+    def _get_game_list(self, params: dict, page: int) -> Paginator:
         if params.get('name'):
-            return self.api_client.search_games_by_name(params['name'], offset)
+            games = Game.objects.filter(game_name__contains=params['name']).all()
+            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
+            return paginator.get_page(page)
         else:
-            return self.api_client.search_games_list(params['rating_lower_limit'], params['rating_upper_limit'],
-                                                     params['platforms'], params['genres'], offset)
+            games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
+                                        user_rating__lte=int(params['rating_upper_limit'])).all()
+            if params['platforms']:
+                games = games.filter(platforms__platform_abbreviation__in=params['platforms']).all()
+            if params['genres']:
+                games = games.filter(genres__genre_name__in=params['genres']).all()
+            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
+            return paginator.get_page(page)
 
 
 @login_required
