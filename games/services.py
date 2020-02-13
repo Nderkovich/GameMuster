@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import transaction
 from datetime import datetime
 
 from games.igdb_api import IGDBClient
@@ -14,7 +15,8 @@ def get_user_favorite_games(user):
         return None
 
 
-class GameFetcher():
+class GameCreator:
+    @transaction.atomic
     def create_game(self, data):
         game, created = Game.objects.update_or_create(
             game_id=data['id'],

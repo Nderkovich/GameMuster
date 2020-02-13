@@ -19,20 +19,20 @@ class Game(models.Model):
 class Keyword(models.Model):
     keyword_id = models.IntegerField(unique=True)
     keyword_name = models.CharField(max_length=100)
-    game = models.ManyToManyField(Game, related_name='keywords')
+    games = models.ManyToManyField(Game, related_name='keywords')
 
 
 class Genre(models.Model):
     genre_id = models.IntegerField(unique=True)
     genre_name = models.CharField(max_length=100)
-    game = models.ManyToManyField(Game, related_name='genres')
+    games = models.ManyToManyField(Game, related_name='genres')
 
 
 class Platform(models.Model):
     platform_id = models.IntegerField(unique=True)
     platform_name = models.CharField(max_length=100)
     platform_abbreviation = models.CharField(max_length=20, null=True)
-    game = models.ManyToManyField(Game, related_name='platforms')
+    games = models.ManyToManyField(Game, related_name='platforms')
 
 
 class Screenshot(models.Model):

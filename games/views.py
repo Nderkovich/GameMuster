@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views import View
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.core.paginator import Paginator
 
 from games.forms import SearchListForm, SearchNameForm
@@ -12,31 +14,35 @@ from games.twitter_api import TwitterApi
 from games.models import Game
 
 
-def game_list_view(request: HttpRequest, page: int = 1) -> HttpResponse:
-    if request.method == 'POST':
-        url_params = request.POST.urlencode()
-        return redirect(f'/search/page/1/?{url_params}')
-    list_search_form = SearchListForm()
-    name_search_form = SearchNameForm()
-    games = Game.objects.all()
-    paginator = Paginator(games, settings.GAME_LIST_LIMIT)
-    game_list = paginator.get_page(page).object_list
-    return render(request, 'Games/list.html', {'game_list': game_list,
-                                               'page': page,
-                                               'list_search_form': list_search_form,
-                                               'name_search_form': name_search_form,
-                                               'params': "",
-                                               'page_obj': paginator.get_page(page),
-                                               'url_path': "/"})
+class GameListView(ListView):
+
+    model = Game
+    paginate_by = settings.GAME_LIST_LIMIT
+    template_name = "Games/list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        list_search_form = SearchListForm()
+        name_search_form = SearchNameForm()
+        context['list_search_form'] = list_search_form
+        context['name_search_form'] = name_search_form
+        context['params'] = ""
+        return context
 
 
-def game_info(request: HttpRequest, game_id: int) -> HttpResponse:
-    game = get_object_or_404(Game, game_id=game_id)
-    twitter_api_client = TwitterApi(
-        settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
-    tweets = twitter_api_client.search_tweets(f'"{game.game_name}"')
-    return render(request, 'Games/game.html', {'game': game,
-                                               'tweets': tweets})
+class GameInfoView(DetailView):
+    model = Game
+    template_name = "Games/game.html"
+
+    def get_object(self, **kwargs):
+        return get_object_or_404(Game, game_id=self.kwargs['game_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        twitter_api_client = TwitterApi(
+            settings.TWITTER_API_URL, settings.TWITTER_API_KEY, settings.TWITTER_SECRET_API_KEY)
+        context['tweets'] = twitter_api_client.search_tweets(f'"{self.object.game_name}"')
+        return context
 
 
 class SearchView(View):

@@ -17,10 +17,8 @@ def send_activation_email(user_id, token, current_site):
     user = Profile.objects.get(id=user_id)
     mail_subject = 'Activate your account.'
     uid = urlsafe_base64_encode(force_bytes(user.pk))
-    print(user.email)
     activation_link = f'{current_site}/profile/activate/uid={uid}/token={token}/'
     message = f'Hello {user.first_name} {user.last_name},\n {activation_link}'
-    print(message)
     email = EmailMessage(mail_subject, message, to=[user.email])
     email.send()
 
