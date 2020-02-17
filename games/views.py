@@ -97,6 +97,7 @@ class SearchView(ListView):
                 games = games.filter(platforms__platform_abbreviation__in=params['platforms']).all()
             if params['genres']:
                 games = games.filter(genres__genre_name__in=params['genres']).all()
+            games = games.distinct()
             return games
 
 
