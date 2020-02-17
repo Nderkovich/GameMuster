@@ -29,6 +29,10 @@ class GameListView(ListView):
         context['params'] = ""
         return context
 
+    def post(self, request, *args, **kwargs):
+        url_params = request.POST.urlencode()
+        return redirect(f'/search/page/1/?{url_params}')
+
 
 class GameInfoView(DetailView):
     model = Game
