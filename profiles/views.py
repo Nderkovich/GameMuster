@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
+from django.urls import reverse
 
 from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
@@ -69,7 +70,9 @@ def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpRespon
     return redirect('user_profile:sign_in')
 
 
-class EditProfileView(View):
+class EditProfileView(LoginRequiredMixin, View):
+    login_url = '/profile/sign_in/'
+
     def get(self, request):
         form = ProfileInfoForm()
         return render(request, 'Profiles/edit_profile.html', {'form': form})
