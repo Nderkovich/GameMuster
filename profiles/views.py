@@ -82,7 +82,7 @@ class EditProfileView(View):
             user.birthday = form['birthday']
             user.first_name = form['first_name']
             user.last_name = form['last_name']
-            user.save()
+            user.save(update_fields=['birthday', 'first_name', 'last_name'])
             return redirect('user_profile:profile')
         else:
             messages.warning(request, 'Invalid form data')
