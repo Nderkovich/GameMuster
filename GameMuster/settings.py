@@ -33,10 +33,11 @@ def get_env_value(env_var):
 SECRET_KEY = get_env_value('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_env_value('DEBUG')
+DEBUG = bool(get_env_value('DEBUG'))
 
 ALLOWED_HOSTS = [
-    '127.0.0.1'
+    '.azurewebsites.net',
+    '*'
 ]
 
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'debug_toolbar',
     'widget_tweaks',
@@ -61,6 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -128,6 +131,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Auth settings
+AUTH_USER_MODEL = 'profiles.Profile'
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -145,27 +152,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'games/static/'),
-]
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'games/static/'), os.path.join(BASE_DIR, 'games/static/'),)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
+# IGDB settings
 IGDB_API_URL = get_env_value('IGDB_API_URL')
 IGDB_API_KEY = get_env_value('IGDB_API_KEY')
+GAME_LIST_LIMIT = 9
 
+# Twitter settings
 TWITTER_API_KEY = get_env_value('TWITTER_API_KEY')
 TWITTER_SECRET_API_KEY = get_env_value('TWITTER_SECRET_API_KEY')
 TWITTER_API_URL = get_env_value('TWITTER_API_URL')
 
 
-GAME_LIST_LIMIT = 9
-
-
-AUTH_USER_MODEL = 'profiles.Profile'
-
-
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
@@ -175,13 +180,15 @@ EMAIL_HOST_PASSWORD = get_env_value('EMAIL_HOST_PASSWORD')
 
 
 # CELERY STUFF
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = get_env_value('CELERY_BROKER')
+CELERY_RESULT_BACKEND = get_env_value('CELERY_BACKEND')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
+
+# Debug toolbar settings
 DEBUG_TOOLBAR_CONFIG = {
     # Toolbar options
     'RESULTS_CACHE_SIZE': 3,

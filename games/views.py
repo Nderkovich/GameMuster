@@ -3,7 +3,6 @@ from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
-from django.views import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.core.paginator import Paginator
@@ -31,7 +30,7 @@ class GameListView(ListView):
 
     def post(self, request, *args, **kwargs):
         url_params = request.POST.urlencode()
-        return redirect(f'/search/page/1/?{url_params}')
+        return redirect(f'/search/?{url_params}')
 
 
 class GameInfoView(DetailView):
@@ -49,27 +48,32 @@ class GameInfoView(DetailView):
         return context
 
 
-class SearchView(View):
+class SearchView(ListView):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
+    model = Game
+    paginate_by = settings.GAME_LIST_LIMIT
+    template_name = "Games/list.html"
+    params = None
 
-    def get(self, request: HttpRequest, page: int = 1) -> HttpResponse:
+    def get_queryset(self, **kwargs):
+        params = self._get_params(self.request.GET)
+        return self._get_game_list(params)
+
+    def get_context_data(self, *, object_list=None, **kwargs) -> HttpResponse:
+        context = super().get_context_data(**kwargs)
         list_search_form = SearchListForm()
         name_search_form = SearchNameForm()
-        params = self._get_params(request.GET)
-        page_obj = self._get_game_list(params, page)
-        game_list = page_obj.object_list
-        url_params = request.GET.urlencode()
-        return render(request, 'Games/list.html', {'game_list': game_list,
-                                                   'page': page,
-                                                   'list_search_form': list_search_form,
-                                                   'name_search_form': name_search_form,
-                                                   'params': url_params,
-                                                   'page_obj': page_obj,
-                                                   'url_path': '/search/'})
+        context['list_search_form'] = list_search_form
+        context['name_search_form'] = name_search_form
+        GET = self.request.GET.copy()
+        if GET.get('page'):
+            GET.pop('page')
+        context['params'] = GET.urlencode()
+        return context
 
-    def post(self, request: HttpRequest, page: int = 1) -> HttpResponse:
+    def post(self, request: HttpRequest) -> HttpResponse:
         url_params = request.POST.urlencode()
-        return redirect(f'/search/page/1/?{url_params}')
+        return redirect(f'/search/?{url_params}')
 
     def _get_params(self, request_dict) -> dict:
         params = {}
@@ -82,11 +86,10 @@ class SearchView(View):
             params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
         return params
 
-    def _get_game_list(self, params: dict, page: int) -> Paginator:
+    def _get_game_list(self, params: dict) -> Paginator:
         if params.get('name'):
             games = Game.objects.filter(game_name__contains=params['name']).all()
-            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
-            return paginator.get_page(page)
+            return games
         else:
             games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
                                         user_rating__lte=int(params['rating_upper_limit'])).all()
@@ -94,8 +97,8 @@ class SearchView(View):
                 games = games.filter(platforms__platform_abbreviation__in=params['platforms']).all()
             if params['genres']:
                 games = games.filter(genres__genre_name__in=params['genres']).all()
-            paginator = Paginator(games, settings.GAME_LIST_LIMIT)
-            return paginator.get_page(page)
+            games = games.distinct()
+            return games
 
 
 @login_required
