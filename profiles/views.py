@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login, authenticate, logout
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_decode
@@ -32,6 +32,11 @@ def sign_in(request: HttpRequest) -> HttpResponse:
             messages.warning(request, 'Invalid form data')
     form = SignInForm()
     return render(request, 'Profiles/sign_in.html', {'form': form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('games:main_page')
 
 
 class SignUpView(View):
