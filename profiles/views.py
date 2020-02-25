@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate, logout
 from django.utils.encoding import force_text
 from django.contrib.sites.shortcuts import get_current_site
@@ -6,8 +7,9 @@ from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
+from django.urls import reverse
 
-from profiles.forms import SignInForm, SignUpForm
+from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
 from profiles.services import create_confirm_token
 from profiles.tasks import send_activation_email_task
@@ -71,3 +73,25 @@ def activation_view(request: HttpRequest, uidb64: str, token: str) -> HttpRespon
     user = get_object_or_404(Profile, id=uid)
     user.activate()
     return redirect('user_profile:sign_in')
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    login_url = '/profile/sign_in/'
+
+    def get(self, request):
+        form = ProfileInfoForm()
+        return render(request, 'Profiles/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = ProfileInfoForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            user = request.user
+            user.birthday = form['birthday']
+            user.first_name = form['first_name']
+            user.last_name = form['last_name']
+            user.save(update_fields=['birthday', 'first_name', 'last_name'])
+            return redirect('user_profile:profile')
+        else:
+            messages.warning(request, 'Invalid form data')
+            return redirect('user_profile:edit_profile')
