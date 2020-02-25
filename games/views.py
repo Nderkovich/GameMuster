@@ -29,7 +29,9 @@ class GameListView(ListView):
         return context
 
     def post(self, request, *args, **kwargs):
-        url_params = request.POST.urlencode()
+        POST = request.POST.copy()
+        POST.pop('csrfmiddlewaretoken')
+        url_params = POST.urlencode()
         return redirect(f'/search/?{url_params}')
 
 
@@ -72,7 +74,9 @@ class SearchView(ListView):
         return context
 
     def post(self, request: HttpRequest) -> HttpResponse:
-        url_params = request.POST.urlencode()
+        POST = request.POST.copy()
+        POST.pop('csrfmiddlewaretoken')
+        url_params = POST.urlencode()
         return redirect(f'/search/?{url_params}')
 
     def _get_params(self, request_dict) -> dict:
