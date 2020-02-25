@@ -61,8 +61,8 @@ class SearchView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs) -> HttpResponse:
         context = super().get_context_data(**kwargs)
-        list_search_form = SearchListForm()
-        name_search_form = SearchNameForm()
+        list_search_form = SearchListForm(self.request.GET)
+        name_search_form = SearchNameForm(self.request.GET)
         context['list_search_form'] = list_search_form
         context['name_search_form'] = name_search_form
         GET = self.request.GET.copy()
