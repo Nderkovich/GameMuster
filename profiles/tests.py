@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
+from django.urls import reverse
 from profiles.models import Profile
 
-# Create your tests here.
+
 class ProfilesTest(TestCase):
     def setUp(self):
         self.client = Client()
@@ -14,11 +15,11 @@ class ProfilesTest(TestCase):
             email="email@gmail.com",
             password='12345Da'
         )
-        response = self.client.post('/profile/sign_in/', {'username': "user1", "password": '12345Da'})
+        response = self.client.post(reverse('user_profile:sign_in'), {'username': usr.username, "password": usr.password})
         self.assertEqual(response.status_code, 200)
 
     def test_registration(self):
-        response = self.client.post('/profile/sign_up/', {'username': "user1",
+        response = self.client.post(reverse('user_profile:sign_up'), {'username': "user1",
                                                           'password': "12345Da",
                                                           'confirm_password': "12345Da",
                                                           'email': "email@adasdasfsdf.ru",
@@ -27,5 +28,5 @@ class ProfilesTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_profile_not_exist(self):
-        response = self.client.get('/profile/profile/2/')
+        response = self.client.get(reverse('user_profile:profile', args=(2,)))
         self.assertEqual(response.status_code, 404)
