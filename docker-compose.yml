@@ -1,11 +1,30 @@
 version: "3"
 services:
-  db:
-    image: "postgres:11"
-    container_name: "my_database"
-    ports:
-      - "54320:5432"
+  redis:
+    image: "redis:alpine"
+    command: redis-server
+  web:
+    image: "gamemuster.azurecr.io/gamemustertest:latest"
+    build: .
+    container_name: "gamemuster"
+    command: bash -c "source .bashrc && pip install celery && pip install redis && pip install django-debug-toolbar && python /app/manage.py runserver 0.0.0.0:8000"
     volumes:
-      - my_dbdata:/var/lib/postgresql/data
-volumes:
-  my_dbdata:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+  celer:
+    build: .
+    command: bash -c "source .bashrc && celery -A GameMuster worker -l info"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+  celer-beat:
+    build: .
+    command: bash -c "source .bashrc && celery -A GameMuster beat -l info"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
