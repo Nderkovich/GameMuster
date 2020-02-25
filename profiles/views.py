@@ -49,12 +49,19 @@ class SignUpView(View):
         if form.is_valid():
             form = form.cleaned_data
             if form['password'] == form['confirm_password']:
-                user = Profile.objects.create_user(username=form['username'], password=form['password'],
-                                                   email=form['email'],
-                                                   first_name=form['first_name'], last_name=form['last_name'])
-                user.deactivate()
-                send_activation_email_task.delay(user.id, create_confirm_token(user),
-                                                 str(get_current_site(request)))
+                if Profile.objects.filter(email=form['email']).exists():
+                    messages.warning(request, 'This email is already in use')
+                    return redirect('user_profile:sign_up')
+                elif Profile.objects.filter(username=form['username']).exists():
+                    messages.warning(request, 'This username is already in use')
+                    return redirect('user_profile:sign_up')
+                else:
+                    user = Profile.objects.create_user(username=form['username'], password=form['password'],
+                                                       email=form['email'],
+                                                       first_name=form['first_name'], last_name=form['last_name'])
+                    user.deactivate()
+                    send_activation_email_task.delay(user.id, create_confirm_token(user),
+                                                     str(get_current_site(request)))
                 return redirect('user_profile:sign_in')
             else:
                 messages.warning(request, 'Invalid form data')
