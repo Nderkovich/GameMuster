@@ -98,7 +98,7 @@ class EditProfileView(LoginRequiredMixin, View):
             user.first_name = form['first_name']
             user.last_name = form['last_name']
             user.save(update_fields=['birthday', 'first_name', 'last_name'])
-            return redirect('user_profile:profile')
+            return redirect('user_profile:profile', user.id)
         else:
             messages.warning(request, 'Invalid form data')
             return redirect('user_profile:edit_profile')
