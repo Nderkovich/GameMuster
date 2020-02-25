@@ -15,9 +15,9 @@ Info
             {% if user.is_authenticated %}
                 {% is_favorite user game.game_id as in_fav %}
                 {% if in_fav %}
-                    <h1><a class="badge badge-danger mx-2" href="{% url 'games:remove_from_favorite' game.id %}">REMOVE</a></h1>
+                    <h1><a class="badge badge-danger mx-2" href="{% url 'games:remove_from_favorite' game.game_id %}">REMOVE</a></h1>
                 {% else %}
-                    <h1><a class="badge badge-success mx-2" href="{% url 'games:add_to_favorite' game.id %}">MUST</a></h1>
+                    <h1><a class="badge badge-success mx-2" href="{% url 'games:add_to_favorite' game.game_id %}">MUST</a></h1>
                 {% endif %}
             {% endif %}
         </div>

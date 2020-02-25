@@ -8,13 +8,20 @@ Profile
 
 {% block content %}
 <div class="row">
-        <div class="col-sm">
+        <div class="col-sm" style="align-items: center">
+                {% if user.is_authenticated %}
+                        {% if user.id == profile.id %}
+                                <h1><a class="badge badge-info mx-2" href="{% url 'user_profile:edit_profile' %}">Edit profile</a></h1>
+                        {% endif %}
+                {% endif %}
         </div>
         <div class="col-sm">
                 <p>Welcome, {{ profile.username }}</p>
                 <p>{{ profile.first_name }} {{profile.last_name}}</p>
                 <p>{{ profile.email }}</p>
-                <p>{{ profile.birthday }}</p>
+                {% if profile.birthday %}
+                        <p>{{ profile.birthday }}</p>
+                {% endif %}
         </div>
         <div class="col-sm">
                 {% for game in user_favorites %}
