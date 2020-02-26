@@ -19,6 +19,14 @@ class GameListView(ListView):
     paginate_by = settings.GAME_LIST_LIMIT
     template_name = "Games/list.html"
 
+    def get(self, *args, **kwargs):
+        if self.request.GET.get('csrfmiddlewaretoken'):
+            params = self.request.GET.copy()
+            params.pop('csrfmiddlewaretoken')
+            return redirect(f'/search/?{params.urlencode()}')
+        else:
+            return super(GameListView, self).get(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         list_search_form = SearchListForm()
@@ -27,12 +35,6 @@ class GameListView(ListView):
         context['name_search_form'] = name_search_form
         context['params'] = ""
         return context
-
-    def post(self, request, *args, **kwargs):
-        POST = request.POST.copy()
-        POST.pop('csrfmiddlewaretoken')
-        url_params = POST.urlencode()
-        return redirect(f'/search/?{url_params}')
 
 
 class GameInfoView(DetailView):
@@ -57,6 +59,14 @@ class SearchView(ListView):
     template_name = "Games/list.html"
     params = None
 
+    def get(self, *args, **kwargs):
+        if self.request.GET.get('csrfmiddlewaretoken'):
+            params = self.request.GET.copy()
+            params.pop('csrfmiddlewaretoken')
+            return redirect(f'/search/?{params.urlencode()}')
+        else:
+            return super(SearchView, self).get(*args, **kwargs)
+
     def get_queryset(self, **kwargs):
         params = self._get_params(self.request.GET)
         return self._get_game_list(params)
@@ -72,12 +82,6 @@ class SearchView(ListView):
             GET.pop('page')
         context['params'] = GET.urlencode()
         return context
-
-    def post(self, request: HttpRequest) -> HttpResponse:
-        POST = request.POST.copy()
-        POST.pop('csrfmiddlewaretoken')
-        url_params = POST.urlencode()
-        return redirect(f'/search/?{url_params}')
 
     def _get_params(self, request_dict) -> dict:
         MINIMUN_RATING = 0
