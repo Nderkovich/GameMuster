@@ -8,14 +8,14 @@ class ProfilesTest(TestCase):
         self.client = Client()
 
     def test_login(self):
-        usr = Profile.objects.create(
+        user = Profile.objects.create(
             username="user1",
             first_name="Name",
             last_name='Name',
             email="email@gmail.com",
             password='12345Da'
         )
-        response = self.client.post(reverse('user_profile:sign_in'), {'username': usr.username, "password": usr.password})
+        response = self.client.post(reverse('user_profile:sign_in'), {'username': user.username, "password": user.password})
         self.assertEqual(response.status_code, 200)
 
     def test_registration(self):
