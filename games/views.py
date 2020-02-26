@@ -80,14 +80,16 @@ class SearchView(ListView):
         return redirect(f'/search/?{url_params}')
 
     def _get_params(self, request_dict) -> dict:
+        MINIMUN_RATING = 0
+        MAXIMUM_RATING = 100
         params = {}
         if request_dict.getlist('name'):
             params['name'] = request_dict.getlist('name')[0]
         else:
             params['platforms'] = request_dict.getlist('platforms')
             params['genres'] = request_dict.getlist('genres')
-            params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit', default=[0])[0]
-            params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit', default=[100])[0]
+            params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit', default=[MINIMUN_RATING])[0]
+            params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit', default=[MAXIMUM_RATING])[0]
         return params
 
     def _get_game_list(self, params: dict) -> Paginator:
