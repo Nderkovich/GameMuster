@@ -1,6 +1,7 @@
 {% extends "Games/base.html" %}
 {% load static %}
 {% load widget_tweaks %}
+{% load user_fav %}
 
 {%block title%}
 Home
@@ -67,7 +68,14 @@ Home
                     <p class="card-text">
                         <span class="badge badge-pill badge-light"><a
                                 href="{% url 'games:game_info' game.game_id %}">Open</a></span>
-                        <span class="badge badge-pill badge-light">Must</span>
+                         {% if user.is_authenticated %}
+                             {% is_favorite user game.game_id as in_fav %}
+                             {% if in_fav %}
+                                <span class="badge badge-pill badge-light"><a href="{% url 'games:remove_from_favorite' game.game_id %}">Remove</a></span>
+                             {% else %}
+                                <span class="badge badge-pill badge-light"><a href="{% url 'games:add_to_favorite' game.game_id %}">Must</a></span>
+                             {% endif %}
+                         {% endif %}
                     </p>
                 </div>
             </div>
