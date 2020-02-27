@@ -20,6 +20,14 @@ class GameListView(ListView):
     paginate_by = settings.GAME_LIST_LIMIT
     template_name = "Games/list.html"
 
+    def get(self, *args, **kwargs):
+        if self.request.GET.get('csrfmiddlewaretoken'):
+            params = self.request.GET.copy()
+            params.pop('csrfmiddlewaretoken')
+            return redirect(f'/search/?{params.urlencode()}')
+        else:
+            return super(GameListView, self).get(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         list_search_form = SearchListForm()
@@ -28,10 +36,6 @@ class GameListView(ListView):
         context['name_search_form'] = name_search_form
         context['params'] = ""
         return context
-
-    def post(self, request, *args, **kwargs):
-        url_params = request.POST.urlencode()
-        return redirect(f'/search/?{url_params}')
 
 
 class GameInfoView(DetailView):
@@ -56,14 +60,22 @@ class SearchView(ListView):
     template_name = "Games/list.html"
     params = None
 
+    def get(self, *args, **kwargs):
+        if self.request.GET.get('csrfmiddlewaretoken'):
+            params = self.request.GET.copy()
+            params.pop('csrfmiddlewaretoken')
+            return redirect(f'/search/?{params.urlencode()}')
+        else:
+            return super(SearchView, self).get(*args, **kwargs)
+
     def get_queryset(self, **kwargs):
         params = self._get_params(self.request.GET)
         return self._get_game_list(params)
 
     def get_context_data(self, *, object_list=None, **kwargs) -> HttpResponse:
         context = super().get_context_data(**kwargs)
-        list_search_form = SearchListForm()
-        name_search_form = SearchNameForm()
+        list_search_form = SearchListForm(self.request.GET)
+        name_search_form = SearchNameForm(self.request.GET)
         context['list_search_form'] = list_search_form
         context['name_search_form'] = name_search_form
         GET = self.request.GET.copy()
@@ -72,19 +84,17 @@ class SearchView(ListView):
         context['params'] = GET.urlencode()
         return context
 
-    def post(self, request: HttpRequest) -> HttpResponse:
-        url_params = request.POST.urlencode()
-        return redirect(f'/search/?{url_params}')
-
     def _get_params(self, request_dict) -> dict:
+        MINIMUN_RATING = 0
+        MAXIMUM_RATING = 100
         params = {}
         if request_dict.getlist('name'):
             params['name'] = request_dict.getlist('name')[0]
         else:
             params['platforms'] = request_dict.getlist('platforms')
             params['genres'] = request_dict.getlist('genres')
-            params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit')[0]
-            params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit')[0]
+            params['rating_lower_limit'] = request_dict.getlist('rating_lower_limit', default=[MINIMUN_RATING])[0]
+            params['rating_upper_limit'] = request_dict.getlist('rating_upper_limit', default=[MAXIMUM_RATING])[0]
         return params
 
     def _get_game_list(self, params: dict) -> Paginator:
