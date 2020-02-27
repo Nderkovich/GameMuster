@@ -49,6 +49,12 @@ class SignUpView(View):
         if form.is_valid():
             form = form.cleaned_data
             if form['password'] == form['confirm_password']:
+                if Profile.objects.filter(email=form['email']).exists():
+                    messages.warning(request, 'This email is already in use')
+                    return redirect('user_profile:sign_up')
+                elif Profile.objects.filter(username=form['username']).exists():
+                    messages.warning(request, 'This username is already in use')
+                    return redirect('user_profile:sign_up')
                 user = Profile.objects.create_user(username=form['username'], password=form['password'],
                                                    email=form['email'],
                                                    first_name=form['first_name'], last_name=form['last_name'])
@@ -91,7 +97,7 @@ class EditProfileView(LoginRequiredMixin, View):
             user.first_name = form['first_name']
             user.last_name = form['last_name']
             user.save(update_fields=['birthday', 'first_name', 'last_name'])
-            return redirect('user_profile:profile', request.user.id)
+            return redirect('user_profile:profile', user.id)
         else:
             messages.warning(request, 'Invalid form data')
             return redirect('user_profile:edit_profile', request.user.id)
