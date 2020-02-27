@@ -1,5 +1,7 @@
 version: "3"
 services:
+  redis:
+    image: "redis:alpine"
   db:
     image: "postgres:11"
     container_name: "my_database"
@@ -7,5 +9,19 @@ services:
       - "54320:5432"
     volumes:
       - my_dbdata:/var/lib/postgresql/data
+  web:
+    env_file: 
+      - vars.env
+    build: .
+  celery:
+    build: .
+    env_file: 
+      - vars.env
+    command: "celery -A GameMuster worker -l info"
+  celery-beat:
+    build: .
+    env_file: 
+      - vars.env
+    command: "celery -A GameMuster beat -l info"
 volumes:
   my_dbdata:

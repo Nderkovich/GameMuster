@@ -1,0 +1,15 @@
+version: '3.3'
+
+services:
+   web:
+     image: gamemuster.azurecr.io/gamemuster:latest
+     container_name: "gamemuster"
+   celery:
+     image: gamemuster.azurecr.io/gamemuster:latest
+     command: celery -A GameMuster worker -l info
+   celery-beat:
+     image: gamemuster.azurecr.io/gamemuster:latest
+     command: celery -A GameMuster beat -l info
+
+
+
