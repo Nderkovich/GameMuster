@@ -6,6 +6,7 @@ from django.conf import settings
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
 
 from games.forms import SearchListForm, SearchNameForm
 from games.igdb_api import IGDBClient
@@ -110,7 +111,7 @@ def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
         game.save()
     game.user_profiles.add(request.user)
     game.save()
-    return redirect('games:game_info', game_id)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
@@ -122,6 +123,4 @@ def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpRespon
     if request.user.is_in_favorite(game_id):
         game.user_profiles.remove(request.user)
         game.save()
-        return redirect('games:game_info', game_id)
-    else:
-        return HttpResponseBadRequest()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
