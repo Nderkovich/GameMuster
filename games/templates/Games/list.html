@@ -16,7 +16,7 @@ Home
         </button>
 
         <div class="collapse" id="collapseMenu">
-            <form action="." class="bg-danger text-white collapse-menu" method="post">
+            <form action="." class="bg-danger text-white collapse-menu" method="get">
                 {% csrf_token %}
                 <div>
                     <p class="font-weight-bold">Platform:</p>
@@ -46,7 +46,7 @@ Home
     <div class="col-8 top-buffer d-felx flex-wrap">
 
         <div class="md-form mt-0">
-            <form action="." method="POST">
+            <form action="." method="get">
                 {% csrf_token %}
                 {% render_field name_search_form.name class="form-control" placeholder="Search" %}
             </form>
