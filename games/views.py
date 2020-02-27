@@ -133,4 +133,6 @@ def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpRespon
     if request.user.is_in_favorite(game_id):
         game.user_profiles.remove(request.user)
         game.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseBadRequest()
