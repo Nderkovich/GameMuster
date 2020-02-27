@@ -89,7 +89,7 @@ class SearchView(ListView):
 
     def _get_game_list(self, params: dict) -> Paginator:
         if params.get('name'):
-            games = Game.objects.filter(game_name__contains=params['name']).all()
+            games = Game.objects.filter(game_name__icontains=params['name']).all()
             return games
         else:
             games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
