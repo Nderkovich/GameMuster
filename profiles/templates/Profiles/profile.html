@@ -9,6 +9,17 @@ Profile
 {% block content %}
 <div class="row">
         <div class="col-sm" style="align-items: center">
+        </div>
+        <div class="col-5">
+                <h2>Welcome, {{ profile.username }}!</h2>
+                <h2>{{ profile.first_name }} {{profile.last_name}}</h2>
+                <p>{{ profile.email }}</p>
+                {% if profile.birthday %}
+                        <p>Birthday: {{ profile.birthday }}</p>
+                {% endif %}
+                {% if user_favorites %}
+                        <p>Favorite games in total: {{ user_favorites|length }}</p>
+                {% endif %}
                 {% if user.is_authenticated %}
                         {% if user.id == profile.id %}
                                 <h1><a class="badge badge-info mx-2" href="{% url 'user_profile:edit_profile' %}">Edit profile</a></h1>
@@ -16,18 +27,15 @@ Profile
                 {% endif %}
         </div>
         <div class="col-sm">
-                <p>Welcome, {{ profile.username }}</p>
-                <p>{{ profile.first_name }} {{profile.last_name}}</p>
-                <p>{{ profile.email }}</p>
-                {% if profile.birthday %}
-                        <p>{{ profile.birthday }}</p>
+                <h3>List of your favorite games:</h3>
+                {% if user_favorites %}
+                        {% for game in user_favorites %}
+                        <a href="/game/{{ game.id }}" style="color: inherit">{{game.name}}</a>
+                        <br>
+                        {% endfor %}
+                {% else %}
+                        <p>You don't have any favorite games yet</p>
                 {% endif %}
-        </div>
-        <div class="col-sm">
-                {% for game in user_favorites %}
-                <a href="/game/{{ game.id }}">{{game.name}}</a>
-                <br>
-                {% endfor %}
         </div>
       </div>
 {% endblock %}
