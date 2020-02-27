@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views.generic.list import ListView
@@ -12,30 +12,6 @@ from games.forms import SearchListForm, SearchNameForm
 from games.igdb_api import IGDBClient
 from games.twitter_api import TwitterApi
 from games.models import Game
-
-
-class GameListView(ListView):
-
-    model = Game
-    paginate_by = settings.GAME_LIST_LIMIT
-    template_name = "Games/list.html"
-
-    def get(self, *args, **kwargs):
-        if self.request.GET.get('csrfmiddlewaretoken'):
-            params = self.request.GET.copy()
-            params.pop('csrfmiddlewaretoken')
-            return redirect(f'/search/?{params.urlencode()}')
-        else:
-            return super(GameListView, self).get(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        list_search_form = SearchListForm()
-        name_search_form = SearchNameForm()
-        context['list_search_form'] = list_search_form
-        context['name_search_form'] = name_search_form
-        context['params'] = ""
-        return context
 
 
 class GameInfoView(DetailView):
@@ -53,7 +29,7 @@ class GameInfoView(DetailView):
         return context
 
 
-class SearchView(ListView):
+class GameListView(ListView):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
     model = Game
     paginate_by = settings.GAME_LIST_LIMIT
@@ -64,9 +40,9 @@ class SearchView(ListView):
         if self.request.GET.get('csrfmiddlewaretoken'):
             params = self.request.GET.copy()
             params.pop('csrfmiddlewaretoken')
-            return redirect(f'/search/?{params.urlencode()}')
+            return redirect(f'/?{params.urlencode()}')
         else:
-            return super(SearchView, self).get(*args, **kwargs)
+            return super(GameListView, self).get(*args, **kwargs)
 
     def get_queryset(self, **kwargs):
         params = self._get_params(self.request.GET)
