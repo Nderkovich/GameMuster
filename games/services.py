@@ -1,16 +1,13 @@
-from django.conf import settings
 from django.db import transaction
 from datetime import datetime
 
-from games.igdb_api import IGDBClient
 from games.models import Game, Keyword, Screenshot, Genre, Platform
 
 
 def get_user_favorite_games(user):
-    api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
     ids = [game.game_id for game in user.favorite_games.all()]
     if ids:
-        return api_client.get_games_by_ids(ids)
+        return Game.objects.filter(game_id__in=ids)
     else:
         return None
 
