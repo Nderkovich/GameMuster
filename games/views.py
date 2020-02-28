@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views.generic.list import ListView
@@ -36,13 +36,6 @@ class GameListView(ListView):
     template_name = "Games/list.html"
     params = None
 
-    def get(self, *args, **kwargs):
-        if self.request.GET.get('csrfmiddlewaretoken'):
-            params = self.request.GET.copy()
-            return redirect(f'/?{params.urlencode()}')
-        else:
-            return super(GameListView, self).get(*args, **kwargs)
-
     def get_queryset(self, **kwargs):
         params = self._get_params(self.request.GET)
         return self._get_game_list(params)
@@ -53,7 +46,10 @@ class GameListView(ListView):
         name_search_form = SearchNameForm(self.request.GET)
         context['list_search_form'] = list_search_form
         context['name_search_form'] = name_search_form
-        context['params'] = self.request.GET.urlencode()
+        GET = self.request.GET.copy()
+        if GET.get('page'):
+            GET.pop('page')
+        context['params'] = GET.urlencode()
         return context
 
     def _get_params(self, request_dict) -> dict:
