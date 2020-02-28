@@ -12,10 +12,13 @@ Profile
         </div>
         <div class="col-5">
                 <h2>Welcome, {{ profile.username }}!</h2>
-                <h2>{{ profile.first_name }} {{profile.last_name}}</h2>
+                <h5>Name:</h5>
+                <p>{{ profile.first_name }} {{profile.last_name}}</p>
+                <h5>Email:</h5>
                 <p>{{ profile.email }}</p>
                 {% if profile.birthday %}
-                        <p>Birthday: {{ profile.birthday }}</p>
+                        <h5>Birthday:</h5>
+                        <p>{{ profile.birthday }}</p>
                 {% endif %}
                 {% if user_favorites %}
                         <p>Favorite games in total: {{ user_favorites|length }}</p>
@@ -29,10 +32,15 @@ Profile
         <div class="col-sm">
                 <h3>List of favorite games:</h3>
                 {% if user_favorites %}
-                        {% for game in user_favorites %}
-                        <a href="/game/{{ game.id }}" style="color: inherit">{{game.name}}</a>
-                        <br>
-                        {% endfor %}
+                        <table class="table table-sm table-hover table-striped">
+                                {% for game in user_favorites %}
+                                <tr>
+                                        <td>
+                                                <a href="/game/{{ game.game_id }}" style="color: inherit"><span class="float-right badge badge-primary">{{ game.user_rating }}</span>{{game.game_name}}</a>
+                                        </td>
+                                </tr>
+                                {% endfor %}
+                        </table>
                 {% else %}
                         <p>You don't have any favorite games yet</p>
                 {% endif %}
