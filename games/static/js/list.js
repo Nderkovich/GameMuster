@@ -8,7 +8,8 @@ $('#collapseMenu').on('show.bs.collapse', function () {
 
 $('#collapseMenu').on('hide.bs.collapse', function () {
     $('#sidebar').attr('class', 'col-2');
-})
+});
+
 
 var $range = $(".js-range-slider"),
     $inputFrom = $(".js-input-from"),
@@ -16,56 +17,64 @@ var $range = $(".js-range-slider"),
     instance,
     min = 0,
     max = 100,
-    from = 0,
+    from = 50,
     to = 100;
 
-$range.ionRangeSlider({
+window.onload = function(){
+    let urlParams = new URLSearchParams(window.location.search);
+    from = urlParams.get("rating_lower_limit");
+    to = urlParams.get("rating_upper_limit");
+
+    $range.ionRangeSlider({
     skin: "round",
     type: "integer",
     min: min,
     max: max,
-    from: 0,
-    to: 100,
+    from: from,
+    to: to,
     step: 1,
     onStart: updateInputs,
     onChange: updateInputs
-});
-instance = $range.data("ionRangeSlider");
+    });
+    instance = $range.data("ionRangeSlider");
 
-function updateInputs(data) {
-    from = data.from;
-    to = data.to;
+    function updateInputs(data) {
+        from = data.from;
+        to = data.to;
 
-    $inputFrom.prop("value", from);
-    $inputTo.prop("value", to);
-}
-
-$inputFrom.on("input", function () {
-    var val = $(this).prop("value");
-
-    // validate
-    if (val < min) {
-        val = min;
-    } else if (val > to) {
-        val = to;
+        $inputFrom.prop("value", from);
+        $inputTo.prop("value", to);
+        console.log(from);
+        console.log(to);
     }
 
-    instance.update({
-        from: val
+    $inputFrom.on("input", function () {
+        var val = $(this).prop("value");
+
+        // validate
+        if (val < min) {
+            val = min;
+        } else if (val > to) {
+            val = to;
+        }
+
+        instance.update({
+            from: val
+        });
     });
-});
 
-$inputTo.on("input", function () {
-    var val = $(this).prop("value");
+    $inputTo.on("input", function () {
+        var val = $(this).prop("value");
 
-    // validate
-    if (val < from) {
-        val = from;
-    } else if (val > max) {
-        val = max;
-    }
+        // validate
+        if (val < from) {
+            val = from;
+        } else if (val > max) {
+            val = max;
+        }
 
-    instance.update({
-        to: val
+        instance.update({
+            to: val
+        });
     });
-});
+};
