@@ -7,7 +7,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
-from django.urls import reverse
 
 from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
