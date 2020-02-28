@@ -9,11 +9,6 @@ services:
       - "54320:5432"
     volumes:
       - my_dbdata:/var/lib/postgresql/data
-  static:
-    env_file: 
-      - .env
-    build: .
-    command: "python manage.py collectstatic --noinput"
   web:
     env_file: 
       - .env
@@ -29,7 +24,6 @@ services:
     command: "celery -A GameMuster worker -l info"
     depends_on:
       - web
-      - static
   celery-beat:
     build: .
     env_file: 
