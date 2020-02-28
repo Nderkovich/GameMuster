@@ -18,7 +18,6 @@ Home
 
         <div class="collapse" id="collapseMenu">
             <form action="." class="bg-danger text-white collapse-menu" method="get">
-                {% csrf_token %}
                 <div>
                     <p class="font-weight-bold">Platform:</p>
                     {{ list_search_form.platforms }}
@@ -48,7 +47,6 @@ Home
 
         <div class="md-form mt-0">
             <form action="." method="get">
-                {% csrf_token %}
                 {% render_field name_search_form.name class="form-control" placeholder="Search" %}
             </form>
         </div>

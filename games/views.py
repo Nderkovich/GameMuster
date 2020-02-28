@@ -39,7 +39,6 @@ class GameListView(ListView):
     def get(self, *args, **kwargs):
         if self.request.GET.get('csrfmiddlewaretoken'):
             params = self.request.GET.copy()
-            params.pop('csrfmiddlewaretoken')
             return redirect(f'/?{params.urlencode()}')
         else:
             return super(GameListView, self).get(*args, **kwargs)
@@ -54,10 +53,7 @@ class GameListView(ListView):
         name_search_form = SearchNameForm(self.request.GET)
         context['list_search_form'] = list_search_form
         context['name_search_form'] = name_search_form
-        GET = self.request.GET.copy()
-        if GET.get('page'):
-            GET.pop('page')
-        context['params'] = GET.urlencode()
+        context['params'] = self.request.GET.urlencode()
         return context
 
     def _get_params(self, request_dict) -> dict:
