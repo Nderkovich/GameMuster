@@ -27,8 +27,8 @@ class MyTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_search_game(self):
-        response = self.client.post('/', {'name': 'game_name'})
-        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/', {'name': 'game_name'})
+        self.assertEqual(response.status_code, 200)
 
     def test_game_not_favorite(self):
         game = Game.objects.create(game_id=1)
