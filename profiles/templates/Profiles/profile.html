@@ -27,7 +27,7 @@ Profile
                 {% endif %}
         </div>
         <div class="col-sm">
-                <h3>List of your favorite games:</h3>
+                <h3>List of favorite games:</h3>
                 {% if user_favorites %}
                         {% for game in user_favorites %}
                         <a href="/game/{{ game.id }}" style="color: inherit">{{game.name}}</a>
