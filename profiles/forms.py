@@ -1,10 +1,20 @@
 from django import forms
+from django.contrib.auth import authenticate
+
 from profiles.models import Profile
 
 
 class SignInForm(forms.Form):
     username = forms.CharField(max_length=100)
     password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+        user = authenticate(username=username, password=password)
+        if user is None:
+            raise forms.ValidationError("Invalid user")
 
 
 class SignUpForm(forms.Form):
@@ -24,7 +34,7 @@ class SignUpForm(forms.Form):
     def clean_email(self):
         email = super().clean().get('email')
         if Profile.objects.filter(email=email).exists():
-            raise froms.ValidationError('Email is already in use')
+            raise forms.ValidationError('Email is already in use')
         return email
 
     def clean_confirm_password(self):

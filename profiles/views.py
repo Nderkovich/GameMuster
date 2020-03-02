@@ -7,7 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
@@ -23,13 +23,10 @@ def sign_in(request: HttpRequest) -> HttpResponse:
             form = form.cleaned_data
             user = authenticate(
                 request, username=form['username'], password=form['password'])
-            if user is not None:
-                login(request, user)
-                return redirect('games:main_page')
-            else:
-                messages.warning(request, 'Invalid username or password')
+            login(request, user)
+            return redirect('games:main_page')
         else:
-            messages.warning(request, 'Invalid form data')
+            messages.warning(request, "Invalid data")
     form = SignInForm()
     return render(request, 'Profiles/sign_in.html', {'form': form})
 
@@ -47,21 +44,18 @@ class SignUpView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         form = SignUpForm(request.POST)
         if form.is_valid():
-            try:
-                form = form.cleaned_data
-                user = Profile.objects.create_user(username=form['username'], password=form['password'],
-                                                    email=form['email'],
-                                                    first_name=form['first_name'], last_name=form['last_name'])
-                user.deactivate()
-                send_activation_email_task.delay(user.id, create_confirm_token(user),
-                                                    str(get_current_site(request)))
-                return redirect('user_profile:sign_in')
-            except ValidationError as e:
-                form = SignUpForm()
-                messages.warning(request, e.message)
-                return render(request, 'Profiles/sign_up.html', {'form': form})
-        else:
-            return redirect('user_profile:sign_up')
+            form = form.cleaned_data
+            user = Profile.objects.create_user(username=form['username'], password=form['password'],
+                                               email=form['email'],
+                                               first_name=form['first_name'], last_name=form['last_name'])
+            user.deactivate()
+            send_activation_email_task.delay(user.id, create_confirm_token(user),
+                                             str(get_current_site(request)))
+            return redirect('user_profile:sign_in')
+        for error in form.errors:
+            messages.warning(request, form.errors[error][0])
+        return redirect('user_profile:sign_up')
+
 
 def profile_view(request: HttpRequest, profile_id: int) -> HttpResponse:
     profile = get_object_or_404(Profile, id=profile_id)
