@@ -1,40 +1,17 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpRequest
 from django.conf import settings
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.core.paginator import Paginator
+from django.http import HttpResponseRedirect
 
 from games.forms import SearchListForm, SearchNameForm
 from games.igdb_api import IGDBClient
 from games.twitter_api import TwitterApi
 from games.models import Game
-
-
-class GameListView(ListView):
-
-    model = Game
-    paginate_by = settings.GAME_LIST_LIMIT
-    template_name = "Games/list.html"
-
-    def get(self, *args, **kwargs):
-        if self.request.GET.get('csrfmiddlewaretoken'):
-            params = self.request.GET.copy()
-            params.pop('csrfmiddlewaretoken')
-            return redirect(f'/search/?{params.urlencode()}')
-        else:
-            return super(GameListView, self).get(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        list_search_form = SearchListForm()
-        name_search_form = SearchNameForm()
-        context['list_search_form'] = list_search_form
-        context['name_search_form'] = name_search_form
-        context['params'] = ""
-        return context
 
 
 class GameInfoView(DetailView):
@@ -52,20 +29,12 @@ class GameInfoView(DetailView):
         return context
 
 
-class SearchView(ListView):
+class GameListView(ListView):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
     model = Game
     paginate_by = settings.GAME_LIST_LIMIT
     template_name = "Games/list.html"
     params = None
-
-    def get(self, *args, **kwargs):
-        if self.request.GET.get('csrfmiddlewaretoken'):
-            params = self.request.GET.copy()
-            params.pop('csrfmiddlewaretoken')
-            return redirect(f'/search/?{params.urlencode()}')
-        else:
-            return super(SearchView, self).get(*args, **kwargs)
 
     def get_queryset(self, **kwargs):
         params = self._get_params(self.request.GET)
@@ -98,7 +67,7 @@ class SearchView(ListView):
 
     def _get_game_list(self, params: dict) -> Paginator:
         if params.get('name'):
-            games = Game.objects.filter(game_name__contains=params['name']).all()
+            games = Game.objects.filter(game_name__icontains=params['name']).all()
             return games
         else:
             games = Game.objects.filter(user_rating__gte=int(params['rating_lower_limit']),
@@ -120,7 +89,7 @@ def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
         game.save()
     game.user_profiles.add(request.user)
     game.save()
-    return redirect('games:game_info', game_id)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
@@ -132,6 +101,6 @@ def remove_from_favorites_view(request: HttpRequest, game_id: int) -> HttpRespon
     if request.user.is_in_favorite(game_id):
         game.user_profiles.remove(request.user)
         game.save()
-        return redirect('games:game_info', game_id)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         return HttpResponseBadRequest()

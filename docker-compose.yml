@@ -11,17 +11,25 @@ services:
       - my_dbdata:/var/lib/postgresql/data
   web:
     env_file: 
-      - vars.env
+      - .env
     build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
   celery:
     build: .
     env_file: 
-      - vars.env
+      - .env
     command: "celery -A GameMuster worker -l info"
+    depends_on:
+      - web
   celery-beat:
     build: .
     env_file: 
-      - vars.env
+      - .env
     command: "celery -A GameMuster beat -l info"
+    depends_on:
+      - web
 volumes:
   my_dbdata:

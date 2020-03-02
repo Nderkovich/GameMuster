@@ -1,10 +1,9 @@
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_encode
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 
 from profiles.models import Profile
 from profiles.tokens import TokenGenerator
-from games.igdb_api import IGDBClient
 
 
 def create_confirm_token(user):

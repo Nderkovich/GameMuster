@@ -13,7 +13,7 @@ class Game(models.Model):
     critic_rating_count = models.IntegerField(null=True)
     game_description = models.TextField(null=True)
     game_release_date = models.DateField(null=True)
-    user_profiles = models.ManyToManyField(Profile, related_name='favorite_games', null=True)
+    user_profiles = models.ManyToManyField(Profile, related_name='favorite_games')
 
 
 class Keyword(models.Model):
