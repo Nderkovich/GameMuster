@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
@@ -46,25 +47,21 @@ class SignUpView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form = form.cleaned_data
-            if form['password'] == form['confirm_password']:
-                if Profile.objects.filter(email=form['email']).exists():
-                    messages.warning(request, 'This email is already in use')
-                    return redirect('user_profile:sign_up')
-                elif Profile.objects.filter(username=form['username']).exists():
-                    messages.warning(request, 'This username is already in use')
-                    return redirect('user_profile:sign_up')
+            try:
+                form = form.cleaned_data
                 user = Profile.objects.create_user(username=form['username'], password=form['password'],
-                                                   email=form['email'],
-                                                   first_name=form['first_name'], last_name=form['last_name'])
+                                                    email=form['email'],
+                                                    first_name=form['first_name'], last_name=form['last_name'])
                 user.deactivate()
                 send_activation_email_task.delay(user.id, create_confirm_token(user),
-                                                 str(get_current_site(request)))
+                                                    str(get_current_site(request)))
                 return redirect('user_profile:sign_in')
-            else:
-                messages.warning(request, 'Invalid form data')
-                return redirect('user_profile:sign_up')
-
+            except ValidationError as e:
+                form = SignUpForm()
+                messages.warning(request, e.message)
+                return render(request, 'Profiles/sign_up.html', {'form': form})
+        else:
+            return redirect('user_profile:sign_up')
 
 def profile_view(request: HttpRequest, profile_id: int) -> HttpResponse:
     profile = get_object_or_404(Profile, id=profile_id)
