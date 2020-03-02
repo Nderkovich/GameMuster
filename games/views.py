@@ -82,11 +82,7 @@ class GameListView(ListView):
 
 @login_required
 def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = Game(game_id=game_id)
-        game.save()
+    game = get_object_or_404(Game, id=game_id)
     game.user_profiles.add(request.user)
     game.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
