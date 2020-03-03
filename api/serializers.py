@@ -5,25 +5,38 @@ from rest_framework import serializers
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ['keyword_id', 'keyword_name']
+        fields = (
+            'keyword_id',
+            'keyword_name'
+        )
 
 
 class ScreenshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Screenshot
-        fields = ['screen_thumb_url', 'screen_big_url']
+        fields = (
+            'screen_thumb_url',
+            'screen_big_url'
+        )
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['genre_id', 'genre_name']
+        fields = (
+            'genre_id',
+            'genre_name'
+        )
 
 
 class PlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = Platform
-        fields = ['platform_id', 'platform_name', 'platform_abbreviation']
+        fields = (
+            'platform_id',
+            'platform_name',
+            'platform_abbreviation'
+        )
 
 
 class GameSerializer(serializers.ModelSerializer):
@@ -34,6 +47,6 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ['game_id', 'game_name', 'cover_url', 'user_rating', 'user_rating_count', 'critic_rating',
+        fields = ('game_id', 'game_name', 'cover_url', 'user_rating', 'user_rating_count', 'critic_rating',
                   'critic_rating_count', 'game_description', 'game_release_date', 'user_profiles', 'keywords',
-                  'screenshots', 'genres', 'platforms']
+                  'screenshots', 'genres', 'platforms')
