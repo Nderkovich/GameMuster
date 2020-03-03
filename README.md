@@ -1,4 +1,4 @@
-## **Gamemuser**
+## **Gamemuster**
 
 Gamemuster is a python web application about games. It's build on django web-framework.
 
