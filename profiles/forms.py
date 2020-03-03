@@ -15,6 +15,7 @@ class SignInForm(forms.Form):
         user = authenticate(username=username, password=password)
         if user is None:
             raise forms.ValidationError("Invalid user")
+        return cleaned_data
 
 
 class SignUpForm(forms.Form):
