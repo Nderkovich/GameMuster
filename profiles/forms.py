@@ -28,7 +28,7 @@ class SignUpForm(forms.Form):
     def clean_username(self):
         username = super().clean().get('username')
         if Profile.objects.filter(username=username).exists():
-            raise forms.ValidationError('Username is alreday in use')
+            raise forms.ValidationError('Username is already in use')
         return username
 
     def clean_email(self):
@@ -42,7 +42,7 @@ class SignUpForm(forms.Form):
         password = data.get('password')
         confirm_password = data.get('confirm_password')
         if password != confirm_password:
-            raise forms.ValidationError('Password are not equal')
+            raise forms.ValidationError('Passwords are not equal')
         return confirm_password
 
 
