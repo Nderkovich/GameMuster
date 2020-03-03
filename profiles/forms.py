@@ -27,21 +27,20 @@ class SignUpForm(forms.Form):
     confirm_password = forms.CharField(widget=forms.PasswordInput)
 
     def clean_username(self):
-        username = super().clean().get('username')
+        username = self.cleaned_data['username']
         if Profile.objects.filter(username=username).exists():
             raise forms.ValidationError('Username is already in use')
         return username
 
     def clean_email(self):
-        email = super().clean().get('email')
+        email = self.cleaned_data['email']
         if Profile.objects.filter(email=email).exists():
             raise forms.ValidationError('Email is already in use')
         return email
 
     def clean_confirm_password(self):
-        data = super().clean()
-        password = data.get('password')
-        confirm_password = data.get('confirm_password')
+        password = self.cleaned_data['password']
+        confirm_password = self.cleaned_data['confirm_password']
         if password != confirm_password:
             raise forms.ValidationError('Passwords are not equal')
         return confirm_password

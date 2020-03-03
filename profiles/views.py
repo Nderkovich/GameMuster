@@ -7,7 +7,6 @@ from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse, HttpRequest
 from django.views.generic import View
 from django.contrib import messages
-from django.urls import reverse
 
 from profiles.forms import SignInForm, SignUpForm, ProfileInfoForm
 from profiles.models import Profile
@@ -26,7 +25,7 @@ def sign_in(request: HttpRequest) -> HttpResponse:
             login(request, user)
             return redirect('games:main_page')
         else:
-            messages.warning(request, "Invalid data")
+            messages.warning(request, 'Invalid data')
     form = SignInForm()
     return render(request, 'Profiles/sign_in.html', {'form': form})
 

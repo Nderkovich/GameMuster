@@ -16,7 +16,7 @@ from games.models import Game
 
 class GameInfoView(DetailView):
     model = Game
-    template_name = "Games/game.html"
+    template_name = 'Games/game.html'
 
     def get_object(self, **kwargs):
         return get_object_or_404(Game, game_id=self.kwargs['game_id'])
@@ -33,7 +33,7 @@ class GameListView(ListView):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
     model = Game
     paginate_by = settings.GAME_LIST_LIMIT
-    template_name = "Games/list.html"
+    template_name = 'Games/list.html'
     params = None
 
     def get_queryset(self, **kwargs):
