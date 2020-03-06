@@ -16,7 +16,7 @@ from games.models import Game
 
 class GameInfoView(DetailView):
     model = Game
-    template_name = "Games/game.html"
+    template_name = 'Games/game.html'
 
     def get_object(self, **kwargs):
         return get_object_or_404(Game, game_id=self.kwargs['game_id'])
@@ -33,7 +33,7 @@ class GameListView(ListView):
     api_client = IGDBClient(settings.IGDB_API_KEY, settings.IGDB_API_URL)
     model = Game
     paginate_by = settings.GAME_LIST_LIMIT
-    template_name = "Games/list.html"
+    template_name = 'Games/list.html'
     params = None
 
     def get_queryset(self, **kwargs):
@@ -82,11 +82,7 @@ class GameListView(ListView):
 
 @login_required
 def add_to_favorites_view(request: HttpRequest, game_id: HttpResponse):
-    try:
-        game = Game.objects.get(game_id=game_id)
-    except Game.DoesNotExist:
-        game = Game(game_id=game_id)
-        game.save()
+    game = get_object_or_404(Game, id=game_id)
     game.user_profiles.add(request.user)
     game.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
