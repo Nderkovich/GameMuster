@@ -1,18 +1,16 @@
-from rest_framework import viewsets
-from django.http import Http404
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from api.serializers import GameSerializer
 from games.models import Game
 
 
-class GamesViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Game.objects.all()
+class GamesView(ListAPIView):
     serializer_class = GameSerializer
+    queryset = Game.objects.all()
 
-    def get_object(self, *args, **kwargs,):
-        game = get_object_or_404(Game, game_id=self.kwargs['pk'])
-        serializer = GameSerializer(game)
-        return serializer.data
+
+class GameInfoView(RetrieveAPIView):
+    lookup_field = "game_id"
+    serializer_class = GameSerializer
+    queryset = Game.objects.all()
+
